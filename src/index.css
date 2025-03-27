@@ -1,0 +1,225 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --primary-color: #8B0000;
+  --secondary-color: #6B0000;
+  --background-color: #F5F5F5;
+  --text-color: #333333;
+  --border-color: #DDDDDD;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f7fa;
+  color: var(--text-color);
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.app-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  height: 50px;
+}
+
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: var(--primary-color);
+}
+
+.qatar-dashboard {
+  padding: 2rem;
+}
+
+section {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.metric {
+  background-color: #f8f8f8;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  text-align: center;
+}
+
+.metric h3 {
+  color: var(--secondary-color);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.metric p {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.behaviors-grid, .competitive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.behavior-category, .competitive-category {
+  background-color: #f8f8f8;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
+
+.behavior-items, .competitive-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.behavior-item, .competitive-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 0.25rem;
+}
+
+.trend {
+  margin-top: 1rem;
+  height: 100px;
+  background-color: #f0f0f0;
+  border-radius: 0.25rem;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background-primary text-text-primary font-sans;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg shadow-soft p-6 transition-all duration-300 hover:shadow-medium;
+  }
+
+  .metric-card {
+    @apply card flex flex-col space-y-2;
+  }
+
+  .metric-value {
+    @apply text-3xl font-bold text-primary;
+  }
+
+  .metric-label {
+    @apply text-text-secondary text-sm;
+  }
+
+  .trend-indicator {
+    @apply flex items-center space-x-1 text-sm;
+  }
+
+  .trend-up {
+    @apply text-text-success;
+  }
+
+  .trend-down {
+    @apply text-text-error;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold text-text-primary mb-6;
+  }
+
+  .chart-container {
+    @apply bg-white rounded-lg shadow-soft p-6;
+  }
+
+  .grid-layout {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent;
+  }
+
+  .error-message {
+    @apply text-text-error text-lg font-medium;
+  }
+}
+
+/* Estilos personalizados para los gráficos */
+.chart-tooltip {
+  @apply bg-white shadow-strong rounded-lg p-2 text-sm;
+}
+
+.chart-axis {
+  @apply text-text-secondary text-sm;
+}
+
+.chart-grid {
+  @apply stroke-border-light;
+}
+
+.chart-bar {
+  @apply transition-all duration-300 hover:opacity-80;
+}
+
+.chart-line {
+  @apply stroke-primary stroke-2;
+}
+
+.chart-point {
+  @apply fill-primary stroke-white stroke-2;
+}
+
+/* Animaciones */
+.fade-in {
+  @apply animate-fade-in;
+}
+
+.slide-up {
+  @apply animate-slide-up;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+} 

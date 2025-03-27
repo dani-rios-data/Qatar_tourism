@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/assets/logo_Qatar.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#8D1B3D" />
+    <meta
+      name="description"
+      content="Qatar Premium Travel Perception Dashboard"
+    />
+    <link rel="apple-touch-icon" href="/assets/logo_Qatar.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Qatar Premium Travel Perception Dashboard</title>
+    <style>
+      .top-header {
+        background-color: #8D1B3D;
+        color: white;
+        padding: 1rem;
+        font-family: 'Inter', sans-serif;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+      }
+      .top-header .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 80rem;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+      .top-header img {
+        height: 4rem;
+        width: 4rem;
+        margin-right: 1rem;
+      }
+      .top-header .text-content {
+        text-align: center;
+      }
+      .top-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .top-header p {
+        margin: 0.25rem 0 0;
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-header">
+      <div class="container">
+        <img src="/assets/logo_Qatar.svg" alt="State of Qatar emblem" />
+        <div class="text-content">
+          <h1>Qatar Premium Travel Perception Dashboard</h1>
+          <p>Bi-annual Premium Traveler Survey Analysis (2023-2024)</p>
+        </div>
+      </div>
+    </div>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/index.jsx"></script>
+  </body>
+</html> 
