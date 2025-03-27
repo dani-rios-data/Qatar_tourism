@@ -4,6 +4,43 @@
   flex-direction: column;
 }
 
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: white;
+}
+
+nav {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+nav button {
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+nav button::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #4f46e5;
+  transform: scaleX(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+nav button:hover::after {
+  transform: scaleX(1);
+}
+
 main {
   flex: 1;
+  padding-top: 2rem;
+}
+
+footer {
+  margin-top: auto;
 } 
