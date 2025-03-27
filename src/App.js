@@ -36,102 +36,109 @@ function App() {
 
   return (
     <div className="App">
-      {/* Header */}
-      <header style={{
-        backgroundColor: '#8D1B3D',
-        padding: '12px 0',
-        color: 'white',
-      }}>
-        <div style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '0 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px'
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100 }}>
+        {/* Header */}
+        <header style={{
+          backgroundColor: '#8D1B3D',
+          padding: '12px 0',
+          color: 'white',
         }}>
-          <img 
-            src="/assets/logo_Qatar.svg" 
-            alt="Qatar Logo" 
-            style={{
-              height: '40px',
-              width: 'auto'
-            }}
-          />
           <div style={{
+            maxWidth: '1440px',
+            margin: '0 auto',
+            padding: '0 24px',
             display: 'flex',
-            flexDirection: 'column',
-            gap: '2px'
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px'
           }}>
-            <h1 style={{
-              fontSize: '20px',
-              fontWeight: '500',
-              margin: 0,
-              lineHeight: '1.2'
-            }}>
-              Qatar Premium Travel Perception Dashboard
-            </h1>
-            <p style={{
-              fontSize: '12px',
-              margin: 0,
-              opacity: '0.9'
-            }}>
-              Bi-annual Premium Traveler Survey Analysis (2023-2024)
-            </p>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav style={{
-        backgroundColor: '#FFFFFF',
-        borderBottom: '1px solid #E5E7EB',
-        padding: '0',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-      }}>
-        <div style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '0 24px',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '4px'
-        }}>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{ 
-                backgroundColor: activeTab === tab.id ? '#8D1B3D' : '#F3F4F6',
-                color: activeTab === tab.id ? 'white' : '#4B5563',
-                padding: '12px 20px',
-                border: 'none',
-                borderRadius: '4px 4px 0 0',
-                fontWeight: 500,
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                margin: '4px 4px 0'
+            <img 
+              src="/assets/logo_Qatar.svg" 
+              alt="Qatar Logo" 
+              style={{
+                height: '40px',
+                width: 'auto'
               }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" style={{height: '16px', width: '16px'}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
-              </svg>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </nav>
+            />
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '2px',
+              alignItems: 'center'
+            }}>
+              <h1 style={{
+                fontSize: '20px',
+                fontWeight: '500',
+                margin: 0,
+                lineHeight: '1.2',
+                textAlign: 'center'
+              }}>
+                Qatar Premium Travel Perception Dashboard
+              </h1>
+              <p style={{
+                fontSize: '12px',
+                margin: 0,
+                opacity: '0.9',
+                textAlign: 'center',
+                width: '100%'
+              }}>
+                Bi-annual Premium Traveler Survey Analysis (2023-2024)
+              </p>
+            </div>
+          </div>
+        </header>
 
-      {/* Main Content */}
+        {/* Navigation */}
+        <nav style={{
+          backgroundColor: '#FFFFFF',
+          borderBottom: '1px solid #E5E7EB',
+          padding: '0',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+        }}>
+          <div style={{
+            maxWidth: '1440px',
+            margin: '0 auto',
+            padding: '0 24px',
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '4px'
+          }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{ 
+                  backgroundColor: activeTab === tab.id ? '#8D1B3D' : '#F3F4F6',
+                  color: activeTab === tab.id ? 'white' : '#4B5563',
+                  padding: '12px 20px',
+                  border: 'none',
+                  borderRadius: '4px 4px 0 0',
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  margin: '4px 4px 0'
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" style={{height: '16px', width: '16px'}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
+                </svg>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+      </div>
+
+      {/* Main Content - con margen superior para dejar espacio para el header y nav fijos */}
       <main style={{ 
         maxWidth: '1440px',
         margin: '0 auto',
-        padding: '24px'
+        padding: '24px',
+        marginTop: '150px' // Ajusta esto según la altura exacta del header + nav
       }}>
         {renderContent()}
       </main>
