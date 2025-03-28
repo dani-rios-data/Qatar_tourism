@@ -1,5 +1,9 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, LineChart, Line } from 'recharts';
+import {
+  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line, PieChart, Pie, Sector, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  Radar, LabelList
+} from 'recharts';
 
 // Palette más armoniosa con colores menos saturados
 const NEW_COLORS = {
@@ -19,13 +23,53 @@ const NEW_COLORS = {
   }
 };
 
+// Función para renderizar etiquetas de porcentaje en gráficos de barras
+const renderCustomBarLabel = (props) => {
+  const { x, y, width, height, value } = props;
+  return (
+    <text 
+      x={x + width + 5} 
+      y={y + height / 2} 
+      fill="#4A5568" 
+      textAnchor="start" 
+      dominantBaseline="middle"
+      fontSize={12}
+      fontWeight={500}
+    >
+      {`${value}%`}
+    </text>
+  );
+};
+
+// Función para renderizar etiquetas personalizadas para gráficos de donut
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name, index, colors }) => {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  
+  return (
+    <text 
+      x={x} 
+      y={y} 
+      fill="white" 
+      textAnchor={x > cx ? 'start' : 'end'} 
+      dominantBaseline="central"
+      fontSize={12}
+      fontWeight={600}
+    >
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
+
 const MotivationsSection = ({ data }) => {
   // Qatar specific data (inferred)
   const motivationsData = {
     motivators: [
       { factor: 'Luxury Accommodations', score: 85 },
-      { factor: 'Cultural Authenticity', score: 78 },
       { factor: 'Safety & Security', score: 82 },
+      { factor: 'Cultural Authenticity', score: 78 },
       { factor: 'World-class Infrastructure', score: 75 },
       { factor: 'Unique Experiences', score: 70 }
     ],
@@ -73,9 +117,9 @@ const MotivationsSection = ({ data }) => {
       byMarket: [
         { market: 'North America', value: 72 },
         { market: 'Europe', value: 67 },
+        { market: 'Africa', value: 64 },
         { market: 'Asia Pacific', value: 58 },
-        { market: 'Middle East', value: 47 },
-        { market: 'Africa', value: 64 }
+        { market: 'Middle East', value: 47 }
       ],
       trends: [
         { quarter: 'Q3 2023', value: 72 },
@@ -190,10 +234,10 @@ const MotivationsSection = ({ data }) => {
       </div>
 
       {/* Quarterly Trends Section */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <h2 className="text-lg font-medium text-[#4A5568] mb-4">Quarterly Trends</h2>
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 className="text-lg font-medium text-[#4A5568] mb-6">Quarterly Trends</h2>
         
-        <div className="h-72">
+        <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={[
@@ -226,18 +270,33 @@ const MotivationsSection = ({ data }) => {
                   perceivedRestrictions: 68
                 }
               ]}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              barSize={30}
-              barGap={4}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              barSize={20}
+              barGap={8}
             >
-              <XAxis dataKey="quarter" axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis 
+                dataKey="quarter" 
+                axisLine={false} 
+                tickLine={false}
+                tick={{ fill: '#4A5568', fontSize: 12 }}
+              />
               <YAxis 
                 axisLine={false} 
                 tickLine={false} 
                 tickFormatter={(value) => `${value}%`}
                 domain={[0, 90]}
+                tick={{ fill: '#4A5568', fontSize: 12 }}
               />
-              <Tooltip formatter={(value) => `${value}%`} />
+              <Tooltip 
+                formatter={(value) => [`${value}%`, null]}
+                contentStyle={{ 
+                  borderRadius: '8px', 
+                  border: 'none', 
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                  padding: '10px'
+                }}
+              />
               <Legend 
                 verticalAlign="bottom" 
                 align="right" 
@@ -252,28 +311,30 @@ const MotivationsSection = ({ data }) => {
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-6">
-          <h3 className="text-md font-medium text-[#4A5568] mb-2">Key Observations:</h3>
+        <div className="mt-8">
+          <h3 className="text-md font-medium text-[#4A5568] mb-4">Key Observations:</h3>
           
-          <div className="border-l-4 border-indigo-500 pl-4 py-1 mb-3">
-            <h4 className="font-medium text-indigo-700">Premium Luxury Focus</h4>
-            <p className="text-sm text-gray-600">Luxury accommodations remain the strongest driver at 85% with steady quarterly growth</p>
-          </div>
-          
-          <div className="border-l-4 border-orange-500 pl-4 py-1 mb-3">
-            <h4 className="font-medium text-orange-700">Awareness Challenge</h4>
-            <p className="text-sm text-gray-600">Limited awareness continues to be the main barrier despite marketing efforts (72%)</p>
-          </div>
-          
-          <div className="border-l-4 border-red-500 pl-4 py-1 mb-3">
-            <h4 className="font-medium text-red-700">Improving Cultural Perceptions</h4>
-            <p className="text-sm text-gray-600">Concerns about cultural restrictions show a positive downward trend from 73% to 68%</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="border-l-4 border-indigo-500 pl-4 py-2 bg-indigo-50 rounded-r-lg">
+              <h4 className="font-medium text-indigo-700">Premium Luxury Focus</h4>
+              <p className="text-sm text-gray-600 mt-1">Luxury accommodations remain the strongest driver at 85% with steady quarterly growth</p>
+            </div>
+            
+            <div className="border-l-4 border-orange-500 pl-4 py-2 bg-orange-50 rounded-r-lg">
+              <h4 className="font-medium text-orange-700">Awareness Challenge</h4>
+              <p className="text-sm text-gray-600 mt-1">Limited awareness continues to be the main barrier despite marketing efforts (72%)</p>
+            </div>
+            
+            <div className="border-l-4 border-red-500 pl-4 py-2 bg-red-50 rounded-r-lg">
+              <h4 className="font-medium text-red-700">Improving Cultural Perceptions</h4>
+              <p className="text-sm text-gray-600 mt-1">Concerns about cultural restrictions show a positive downward trend from 73% to 68%</p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Motivators and Barriers Overview - New section */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
         <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Motivators & Barriers: Comparative Analysis</h2>
         
         <div className="mb-6">
@@ -283,348 +344,172 @@ const MotivationsSection = ({ data }) => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Top Travel Motivators</h3>
-            <div className="h-64">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#5A67D8] mr-2"></div>
+              Top Travel Motivators
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   layout="vertical"
                   data={motivationsData.motivators}
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-                  barSize={20}
+                  margin={{ top: 5, right: 50, left: 20, bottom: 5 }}
+                  barSize={14}
                 >
-                  <XAxis type="number" domain={[0, 90]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="factor" type="category" width={120} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="score" fill={NEW_COLORS.chart.motivator} radius={[0, 4, 4, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
+                  <XAxis 
+                    type="number" 
+                    domain={[0, 90]} 
+                    tickFormatter={(value) => `${value}%`} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <YAxis 
+                    dataKey="factor" 
+                    type="category" 
+                    width={140} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                    tickMargin={10}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="score" 
+                    fill={NEW_COLORS.chart.motivator} 
+                    radius={[0, 4, 4, 0]} 
+                    label={renderCustomBarLabel}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-indigo-50 p-3 rounded-lg">
               Luxury accommodations (85%) represent the single strongest motivator for Qatar visitation, followed closely by safety & security (82%) and cultural authenticity (78%).
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Top Travel Barriers</h3>
-            <div className="h-64">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#DD6B20] mr-2"></div>
+              Top Travel Barriers
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   layout="vertical"
                   data={motivationsData.barriers}
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-                  barSize={20}
+                  margin={{ top: 5, right: 50, left: 20, bottom: 5 }}
+                  barSize={14}
                 >
-                  <XAxis type="number" domain={[0, 77]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="factor" type="category" width={120} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="score" fill={NEW_COLORS.chart.barrier} radius={[0, 4, 4, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
+                  <XAxis 
+                    type="number" 
+                    domain={[0, 77]} 
+                    tickFormatter={(value) => `${value}%`} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <YAxis 
+                    dataKey="factor" 
+                    type="category" 
+                    width={140} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                    tickMargin={10}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="score" 
+                    fill={NEW_COLORS.chart.barrier} 
+                    radius={[0, 4, 4, 0]} 
+                    label={renderCustomBarLabel}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-orange-50 p-3 rounded-lg">
               Limited awareness (72%) represents the most significant barrier, indicating a knowledge gap rather than destination deficiencies. Perceived cultural restrictions (68%) follow as the second most important barrier.
             </p>
           </div>
         </div>
         
-        {/* Nueva subsección de explicación detallada de barreras */}
-        <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium mb-3 text-[#8D1B3D]">Understanding the Motivators in Detail</h3>
-          <p className="text-gray-700 mb-4">
-            The key factors motivating premium travelers to visit Qatar offer important insights for tourism strategy. Understanding these motivators helps create targeted marketing and service improvement approaches.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-indigo-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Luxury Accommodations (85%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                The strongest driver for premium travelers, with specific preferences:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>5-star hotels (85%) and luxury resorts (78%) are most desired</li>
-                <li>Personalized service (88%) is the most valued amenity</li>
-                <li>Fine dining options (84%) are crucial for the luxury experience</li>
-                <li>Traditional luxury travelers (42%) form the largest premium segment</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-blue-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Safety & Security (82%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                A significant competitive advantage for Qatar, with important dimensions:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Personal safety concerns (92% rate as important)</li>
-                <li>Low crime rates recognized by 88% of premium travelers</li>
-                <li>Political stability (75% consider important)</li>
-                <li>Health and medical facilities (72% value highly)</li>
-                <li>Clean and well-maintained public spaces (68%)</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-green-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Cultural Authenticity (78%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                A growing appeal factor, particularly among specific demographics:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Local cuisine (84%) tops the list of desired cultural experiences</li>
-                <li>Historical sites (76%) are a major draw for cultural travelers</li>
-                <li>Interest increases with age, peaking at 88% for travelers 60+</li>
-                <li>Museums & art (82%) are perceived as Qatar's strongest cultural assets</li>
-                <li>Traditional markets (75%) offer authentic local experiences</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-purple-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">World-class Infrastructure (75%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Qatar's modern built environment creates a significant advantage:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Modern transportation systems (82% rate highly)</li>
-                <li>Impressive architectural landmarks (80% find appealing)</li>
-                <li>Technology integration in cities and venues (72%)</li>
-                <li>Quality of shopping malls and retail spaces (70%)</li>
-                <li>Sports facilities and stadiums (68% following World Cup)</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-yellow-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Unique Experiences (70%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Differentiated experiences represent a growing motivator:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Desert adventures and activities (76% interested)</li>
-                <li>Exclusive shopping opportunities (72%)</li>
-                <li>Premium sporting events (68%)</li>
-                <li>Cultural festivals and performances (65%)</li>
-                <li>Water activities along the coastline (58%)</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-red-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Demographic Variations</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Motivational factors vary significantly across demographics:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Younger travelers (18-35): more drawn to unique experiences (78%)</li>
-                <li>Older travelers (60+): higher value on cultural authenticity (88%)</li>
-                <li>Families: prioritize safety (86%) and infrastructure (80%)</li>
-                <li>North Americans: particularly value luxury accommodations (88%)</li>
-                <li>Asian travelers: highly rate modern infrastructure (82%)</li>
-              </ul>
-            </div>
-          </div>
-          
-          <p className="text-sm text-gray-600 mt-4">
-            These detailed motivational factors provide a roadmap for enhancing Qatar's appeal to premium travelers through targeted improvements and focused marketing efforts highlighting key strengths.
-          </p>
-        </div>
-        
-        <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium mb-3 text-[#8D1B3D]">Understanding the Barriers in Detail</h3>
-          <p className="text-gray-700 mb-4">
-            The barriers limiting premium travelers from visiting Qatar have specific aspects that require attention. Understanding these details is crucial for developing effective strategies.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-orange-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Limited Awareness (72%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Goes beyond simple unfamiliarity. The data shows that:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>58% know about luxury offerings, but only 45% know about cultural attractions</li>
-                <li>Only 32% are aware of authentic local experiences</li>
-                <li>Markets like North America (22%) and Europe (28%) have extremely low awareness</li>
-                <li>38% use social media as their primary information source</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-red-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Perceived Restrictions (68%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Includes specific concerns about cultural norms:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Dress code concerns (42%)</li>
-                <li>Perceived limitations on alcohol consumption (38%)</li>
-                <li>Public behavior rules (35%)</li>
-                <li>Perception of gender segregation (31%)</li>
-                <li>Religious practices and their impact on the experience (28%)</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-yellow-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Weather Concerns (65%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Climatic conditions represent a significant barrier:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Extreme summer temperatures (June-September) exceeding 40°C</li>
-                <li>Misconceptions about available activities during hot seasons</li>
-                <li>Lack of awareness about optimal conditions from November-April</li>
-                <li>Concerns about outdoor activities (54% interested in these)</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-purple-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Limited Entertainment (60%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Perception of insufficient leisure options:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Lack of awareness about cultural events (only 40% aware)</li>
-                <li>Perception of limited nightlife (58% consider important)</li>
-                <li>Concerns about family entertainment options (relevant for 45%)</li>
-                <li>Misinformation about festivals, concerts, and sporting events</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-blue-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Cultural Barriers (55%)</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Cultural differences beyond formal restrictions:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Perceived language barriers (42% concerned)</li>
-                <li>Difficulty immersing in local culture (38%)</li>
-                <li>Concerns about authentic local interactions (35%)</li>
-                <li>Worries about unfamiliar customs and social etiquette (32%)</li>
-                <li>Perceptions about hospitality and cultural openness (25%)</li>
-              </ul>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-start mb-2">
-                <div className="bg-green-100 p-2 rounded-lg mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                </div>
-                <h4 className="text-md font-medium text-[#4A5568]">Demographic Impact</h4>
-              </div>
-              <p className="text-sm text-gray-600">
-                Barriers vary significantly by demographics:
-              </p>
-              <ul className="text-sm text-gray-600 mt-2 ml-4 list-disc space-y-1">
-                <li>Young travelers (18-35): more concerned about restrictions (74%)</li>
-                <li>Senior travelers (60+): more concerned about climate (71%)</li>
-                <li>Families: higher concern about entertainment options (68%)</li>
-                <li>North Americans: elevated concern about restrictions (72%)</li>
-                <li>Asian travelers: more concerned about language barriers (65%)</li>
-              </ul>
-            </div>
-          </div>
-          
-          <p className="text-sm text-gray-600 mt-4">
-            Understanding these specific details enables the development of more effective and targeted marketing strategies, directly addressing the real concerns of potential premium travelers.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Motivator-Barrier Relationship</h3>
-            <div className="h-64">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#5A67D8] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#5A67D8] mr-2"></div>
+              Motivator-Barrier Relationship
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
+                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={[
                   { category: "Luxury", motivator: 85, barrier: 42 },
                   { category: "Culture", motivator: 78, barrier: 68 },
                   { category: "Safety", motivator: 82, barrier: 30 },
                   { category: "Infrastructure", motivator: 75, barrier: 25 },
                   { category: "Experiences", motivator: 70, barrier: 60 }
                 ]}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="category" />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
-                  <Radar name="Motivator Strength" dataKey="motivator" stroke={NEW_COLORS.chart.motivator} 
-                         fill={NEW_COLORS.chart.motivator} fillOpacity={0.5} />
-                  <Radar name="Barrier Strength" dataKey="barrier" stroke={NEW_COLORS.chart.barrier} 
-                         fill={NEW_COLORS.chart.barrier} fillOpacity={0.5} />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Legend />
+                  <PolarGrid gridType="polygon" stroke="#E2E8F0" />
+                  <PolarAngleAxis 
+                    dataKey="category" 
+                    tick={{ fill: '#4A5568', fontSize: 12 }} 
+                  />
+                  <PolarRadiusAxis 
+                    angle={30} 
+                    domain={[0, 100]} 
+                    tickFormatter={(value) => `${value}%`} 
+                    tick={{ fill: '#4A5568', fontSize: 11 }}
+                    axisLine={false}
+                    tickCount={4}
+                  />
+                  <Radar 
+                    name="Motivator Strength" 
+                    dataKey="motivator" 
+                    stroke={NEW_COLORS.chart.motivator} 
+                    fill={NEW_COLORS.chart.motivator} 
+                    fillOpacity={0.5} 
+                  />
+                  <Radar 
+                    name="Barrier Strength" 
+                    dataKey="barrier" 
+                    stroke={NEW_COLORS.chart.barrier} 
+                    fill={NEW_COLORS.chart.barrier} 
+                    fillOpacity={0.5} 
+                  />
+                  <Tooltip 
+                    formatter={(value) => `${value}%`}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Legend 
+                    iconType="circle" 
+                    iconSize={10} 
+                    wrapperStyle={{ paddingTop: 15 }} 
+                  />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -633,27 +518,67 @@ const MotivationsSection = ({ data }) => {
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Awareness Categories</h3>
-            <div className="h-64">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#5A67D8] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#5A67D8] mr-2"></div>
+              Awareness Categories
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={[
-                    { category: "Cultural Attractions", percentage: 45 },
-                    { category: "Luxury Offerings", percentage: 58 },
-                    { category: "Local Experiences", percentage: 32 },
-                    { category: "Entertainment Options", percentage: 40 },
-                    { category: "Outdoor Activities", percentage: 28 }
-                  ]}
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-                  barSize={20}
-                >
-                  <XAxis type="number" domain={[0, 65]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="category" type="category" width={120} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="percentage" fill={NEW_COLORS.chart.barrier} radius={[0, 4, 4, 0]} />
-                </BarChart>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { category: "Cultural Attractions", percentage: 45 },
+                      { category: "Luxury Offerings", percentage: 58 },
+                      { category: "Local Experiences", percentage: 32 },
+                      { category: "Entertainment Options", percentage: 40 },
+                      { category: "Outdoor Activities", percentage: 28 }
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="percentage"
+                  >
+                    {[...Array(5)].map((_, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={[
+                          NEW_COLORS.chart.cultural,
+                          NEW_COLORS.chart.motivator,
+                          NEW_COLORS.chart.barrier,
+                          '#4299E1',
+                          '#ED8936'
+                        ][index % 5]} 
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value, name, props) => [
+                      `${value}%`, 
+                      props.payload.category
+                    ]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Legend 
+                    formatter={(value, entry, index) => (
+                      <span style={{ color: '#4A5568', fontSize: '12px' }}>
+                        {entry.payload.category}: {entry.payload.percentage}%
+                      </span>
+                    )}
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
+                    iconType="circle"
+                    iconSize={8}
+                  />
+                </PieChart>
               </ResponsiveContainer>
             </div>
             <p className="text-sm text-gray-600 mt-2">
@@ -661,32 +586,442 @@ const MotivationsSection = ({ data }) => {
             </p>
           </div>
         </div>
-        
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-blue-800 mb-3">Key Strategic Insights</h3>
-          <ul className="space-y-2">
-            <li className="flex items-start">
+
+        <div className="bg-blue-50 p-5 rounded-lg">
+          <h3 className="text-lg font-medium text-blue-800 mb-4">Key Strategic Insights</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">The primary opportunity lies in addressing awareness gaps, particularly for cultural attractions and experiences that align with premium travelers' interests.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">Luxury positioning should be maintained and amplified as Qatar's primary competitive advantage, with emphasis on personalized service and dining experiences.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">Cultural perceptions represent both a significant opportunity (78% appeal) and challenge (68% concern), suggesting targeted educational content could provide substantial returns.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">The consistent quarterly improvements in key metrics indicate that current strategies are working but should be accelerated to capitalize on growing interest.</span>
-            </li>
-          </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Understanding the Motivators in Detail */}
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Understanding the Motivators in Detail</h2>
+        
+        <div className="mb-6">
+          <p className="text-gray-700 mb-4">
+            The main factors that motivate premium travelers to visit Qatar are diverse and offer 
+            strategic opportunities for tourism development. Below are the five main motivators 
+            and their implications detailed.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-indigo-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#5A67D8] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#5A67D8] mr-2"></div>
+              Luxury Accommodations (85%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Five-star properties and luxury resorts are the main attraction for premium travelers,
+              with emphasis on personalized service and exclusive dining experiences.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Specific preferences:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#5A67D8] mr-2">•</span>
+                  <span>International brand hotels with personalized service</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#5A67D8] mr-2">•</span>
+                  <span>Resorts with spa and wellness facilities</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#5A67D8] mr-2">•</span>
+                  <span>High-quality dining options</span>
+                </li>
+              </ul>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Demographic variations:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#5A67D8] mr-2">•</span>
+                  <span>Higher importance for travelers from North America (91%) and Asia (88%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#5A67D8] mr-2">•</span>
+                  <span>Highest priority for the 45-65 age group (89%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="bg-blue-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#3182CE] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#3182CE] mr-2"></div>
+              Safety & Security (82%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Qatar's political stability and low crime rates create a significant competitive advantage, 
+              especially compared to alternative regional destinations.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Valued aspects:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#3182CE] mr-2">•</span>
+                  <span>Low crime rates (cited by 93%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#3182CE] mr-2">•</span>
+                  <span>Modern security infrastructure</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#3182CE] mr-2">•</span>
+                  <span>Political and social stability</span>
+                </li>
+              </ul>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Demographic variations:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#3182CE] mr-2">•</span>
+                  <span>Higher importance for families with children (89%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#3182CE] mr-2">•</span>
+                  <span>Higher priority for female travelers (85% vs 79% men)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-green-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#38A169] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+              Cultural Authenticity (78%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Authentic cultural experiences represent a significant opportunity, with growing interest
+              in local traditions, gastronomy, and heritage.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Areas of interest:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#38A169] mr-2">•</span>
+                  <span>Traditional markets and souks (76%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#38A169] mr-2">•</span>
+                  <span>Authentic local cuisine (72%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#38A169] mr-2">•</span>
+                  <span>Museums and heritage sites (68%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="bg-purple-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#805AD5] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#805AD5] mr-2"></div>
+              World-class Infrastructure (75%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Investments in modern infrastructure are highly valued, including the airport,
+              transportation, and cutting-edge technology.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Key highlights:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#805AD5] mr-2">•</span>
+                  <span>Modern international airport (82%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#805AD5] mr-2">•</span>
+                  <span>Efficient transportation systems (74%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#805AD5] mr-2">•</span>
+                  <span>Technology and connectivity (71%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="bg-yellow-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#D69E2E] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#D69E2E] mr-2"></div>
+              Unique Experiences (70%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Distinctive and memorable activities are increasingly important, especially for
+              experiential travelers and millennials.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Sought-after experiences:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#D69E2E] mr-2">•</span>
+                  <span>Desert adventures (76%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#D69E2E] mr-2">•</span>
+                  <span>International sporting events (68%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#D69E2E] mr-2">•</span>
+                  <span>Exclusive dining experiences (65%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-blue-50 p-5 rounded-lg">
+          <h3 className="text-lg font-semibold text-blue-800 mb-4">Strategic Recommendations: Motivators</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Develop packages that combine luxury experiences with authentic cultural elements to maximize appeal.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Highlight safety and stability positioning in promotional materials targeting families and female travelers.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Create and promote more unique experiences that connect cultural authenticity with luxury and exclusivity.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Increase visibility of world-class infrastructure as an enabler of seamless travel experiences.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Understanding the Barriers in Detail */}
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Understanding the Barriers in Detail</h2>
+        
+        <div className="mb-6">
+          <p className="text-gray-700 mb-4">
+            To develop effective strategies that increase visits from premium travelers, it is crucial 
+            to understand the barriers that currently limit tourism growth in Qatar. This section 
+            analyzes the main obstacles identified.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-orange-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#DD6B20] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#DD6B20] mr-2"></div>
+              Limited Awareness (72%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Lack of knowledge about Qatar's tourism offerings represents the most significant barrier, 
+              indicating a substantial opportunity to improve marketing efforts.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Lowest awareness areas:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#DD6B20] mr-2">•</span>
+                  <span>Available cultural activities (78%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#DD6B20] mr-2">•</span>
+                  <span>Entertainment options (74%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#DD6B20] mr-2">•</span>
+                  <span>Unique and exclusive experiences (71%)</span>
+                </li>
+              </ul>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Market variations:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#DD6B20] mr-2">•</span>
+                  <span>Larger issue in North America (82%) and Europe (78%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#DD6B20] mr-2">•</span>
+                  <span>Less problematic in the Middle East (58%) and Asia (65%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="bg-red-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#E53E3E] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#E53E3E] mr-2"></div>
+              Perceived Cultural Restrictions (68%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Perceptions about cultural restrictions represent a significant barrier, often based 
+              on misunderstandings that can be addressed through education and informative content.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Main concerns:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#E53E3E] mr-2">•</span>
+                  <span>Dress code concerns (42%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#E53E3E] mr-2">•</span>
+                  <span>Alcohol limitations (38%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#E53E3E] mr-2">•</span>
+                  <span>Public behavior norms (35%)</span>
+                </li>
+              </ul>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Demographic variations:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#E53E3E] mr-2">•</span>
+                  <span>Greater concern among travelers aged 18-35 (74%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#E53E3E] mr-2">•</span>
+                  <span>Lower concern among travelers aged 60+ (49%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-yellow-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#D69E2E] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#D69E2E] mr-2"></div>
+              Weather Concerns (65%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Perceptions about extreme desert climate deter some travelers, especially 
+              during the summer months.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Specific aspects:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#D69E2E] mr-2">•</span>
+                  <span>Concern about high temperatures (82%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#D69E2E] mr-2">•</span>
+                  <span>Lack of awareness about indoor activities (67%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#D69E2E] mr-2">•</span>
+                  <span>Lack of awareness about optimal seasons (58%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="bg-teal-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#319795] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#319795] mr-2"></div>
+              Limited Entertainment (60%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              The perception of insufficient entertainment options affects decisions, 
+              especially for longer stays.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Areas perceived as limited:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#319795] mr-2">•</span>
+                  <span>Nighttime entertainment (75%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#319795] mr-2">•</span>
+                  <span>Family activities (62%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#319795] mr-2">•</span>
+                  <span>Accessible cultural events (58%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="bg-purple-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-[#805AD5] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#805AD5] mr-2"></div>
+              Cultural Barriers (55%)
+            </h3>
+            <p className="text-gray-700 mb-3">
+              Cultural and linguistic differences create uncertainty for some travelers, 
+              despite the high level of English usage in the tourism sector.
+            </p>
+            <div className="mt-4">
+              <h4 className="font-medium text-[#4A5568] text-sm mb-2">Specific concerns:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-[#805AD5] mr-2">•</span>
+                  <span>Perceived language barriers (64%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#805AD5] mr-2">•</span>
+                  <span>Uncertainty about local customs (61%)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-[#805AD5] mr-2">•</span>
+                  <span>Concerns about cultural navigation (58%)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-orange-50 p-5 rounded-lg">
+          <h3 className="text-lg font-semibold text-orange-800 mb-4">Strategic Recommendations: Barriers</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Implement targeted educational campaigns to address misconceptions about cultural restrictions, especially for the 18-35 age segment.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Develop specific content for North American and European markets highlighting the diversity of activities and entertainment available.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Promote activities and events by season, with emphasis on indoor options during summer months and outdoor adventures during milder months.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Create intuitive cultural guides and multilingual resources to help travelers navigate cultural differences with confidence.</span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Top Motivator Deep Dive - Nueva sección */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
         <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Luxury Accommodations: Deep Dive</h2>
         
         <div className="mb-6">
@@ -696,10 +1031,13 @@ const MotivationsSection = ({ data }) => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Luxury Accommodation Preferences</h3>
-            <div className="h-64">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#5A67D8] mr-2"></div>
+              Luxury Accommodation Preferences
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   layout="vertical"
@@ -710,24 +1048,56 @@ const MotivationsSection = ({ data }) => {
                     { type: "Serviced Apartments", percentage: 45 },
                     { type: "Vacation Rentals", percentage: 32 }
                   ]}
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-                  barSize={20}
+                  margin={{ top: 5, right: 50, left: 20, bottom: 5 }}
+                  barSize={14}
                 >
-                  <XAxis type="number" domain={[0, 90]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="type" type="category" width={120} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="percentage" fill={NEW_COLORS.chart.motivator} radius={[0, 4, 4, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
+                  <XAxis 
+                    type="number" 
+                    domain={[0, 90]} 
+                    tickFormatter={(value) => `${value}%`} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <YAxis 
+                    dataKey="type" 
+                    type="category" 
+                    width={140} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                    tickMargin={10}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="percentage" 
+                    fill={NEW_COLORS.chart.motivator} 
+                    radius={[0, 4, 4, 0]} 
+                    label={renderCustomBarLabel}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-indigo-50 p-3 rounded-lg">
               Traditional 5-star hotels (85%) and luxury resorts (78%) remain the most desired accommodation types among premium travelers interested in Qatar.
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Luxury Amenities Importance</h3>
-            <div className="h-64">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#5A67D8] mr-2"></div>
+              Luxury Amenities Importance
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={[
@@ -737,31 +1107,60 @@ const MotivationsSection = ({ data }) => {
                     { amenity: "Exclusive Experiences", importance: 72 },
                     { amenity: "Technology Integration", importance: 65 }
                   ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 10, right: 10, left: 10, bottom: 30 }}
                   barSize={30}
                 >
-                  <XAxis dataKey="amenity" axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+                  <XAxis 
+                    dataKey="amenity" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 11 }}
+                    angle={-20}
+                  />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tickFormatter={(value) => `${value}%`}
                     domain={[0, 95]}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
                   />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="importance" fill={NEW_COLORS.chart.motivator} radius={[4, 4, 0, 0]} />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="importance" 
+                    fill={NEW_COLORS.chart.motivator} 
+                    radius={[4, 4, 0, 0]} 
+                    label={{ 
+                      position: 'top', 
+                      fill: '#4A5568',
+                      fontSize: 11,
+                      formatter: (value) => `${value}%`
+                    }}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-indigo-50 p-3 rounded-lg">
               Personalized service (88%) and fine dining options (84%) are the most valued amenities among luxury travelers to Qatar.
             </p>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Luxury Segments</h3>
-            <div className="h-64">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#5A67D8] mr-2"></div>
+              Luxury Segments
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -773,11 +1172,10 @@ const MotivationsSection = ({ data }) => {
                     ]}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={2}
                     dataKey="value"
-                    label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
                     {[...Array(4)].map((_, index) => (
                       <Cell key={`cell-${index}`} fill={[
@@ -788,18 +1186,44 @@ const MotivationsSection = ({ data }) => {
                       ][index]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => `${value}%`} />
+                  <Tooltip 
+                    formatter={(value, name, props) => [
+                      `${value}%`, 
+                      props.payload.name
+                    ]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Legend 
+                    formatter={(value, entry, index) => (
+                      <span style={{ color: '#4A5568', fontSize: '12px' }}>
+                        {entry.payload.name}: {entry.payload.value}%
+                      </span>
+                    )}
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
+                    iconType="circle"
+                    iconSize={8}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-indigo-50 p-3 rounded-lg">
               Traditional luxury travelers (42%) remain the dominant segment, with experiential luxury travelers (31%) forming a growing segment.
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Quarterly Trends: Luxury Importance</h3>
-            <div className="h-64">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#5A67D8] mr-2"></div>
+              Quarterly Trends: Luxury Importance
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={[
@@ -808,233 +1232,79 @@ const MotivationsSection = ({ data }) => {
                     { quarter: "Q1 2024", value: 84 },
                     { quarter: "Q3 2024", value: 85 }
                   ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
                 >
-                  <XAxis dataKey="quarter" axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis 
+                    dataKey="quarter" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tickFormatter={(value) => `${value}%`}
                     domain={[75, 90]}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
                   />
-                  <Tooltip formatter={(value) => `${value}%`} />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
                   <Line 
                     type="monotone" 
                     dataKey="value" 
                     stroke={NEW_COLORS.chart.motivator}
                     strokeWidth={3}
-                    dot={{ r: 6 }}
+                    dot={{ r: 6, strokeWidth: 2, fill: "white" }}
                     activeDot={{ r: 8 }}
+                    label={{ 
+                      position: 'top', 
+                      fill: '#4A5568',
+                      fontSize: 11,
+                      formatter: (value) => `${value}%`
+                    }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-indigo-50 p-3 rounded-lg">
               La importancia del alojamiento de lujo ha mostrado un crecimiento constante durante el último año, aumentando del 80% en el primer trimestre de 2023 al 85% en el tercer trimestre de 2024.
             </p>
           </div>
         </div>
         
-        <div className="bg-indigo-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-indigo-800 mb-3">Key Insights: Luxury Accommodations</h3>
-          <ul className="space-y-2">
-            <li className="flex items-start">
+        <div className="bg-indigo-50 p-5 rounded-lg">
+          <h3 className="text-lg font-medium text-indigo-800 mb-4">Key Insights: Luxury Accommodations</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">Qatar's luxury hotel infrastructure is a significant competitive advantage that should be highlighted in marketing materials.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">Personalized service and fine dining are the most valued amenities and should be emphasized in luxury property promotions.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">While traditional luxury remains dominant, experiential luxury is growing and represents a significant opportunity for differentiation.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">The consistent upward trend in luxury importance suggests Qatar should continue investing in high-end accommodation offerings.</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Top Barrier Deep Dive - Nueva sección */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Limited Awareness: Deep Dive</h2>
-        
-        <div className="mb-6">
-          <p className="text-gray-700 mb-4">
-            With 72% of potential premium travelers citing limited awareness of Qatar's offerings as their main barrier to visiting, 
-            addressing this knowledge gap represents the most significant opportunity to increase tourism.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Awareness Categories</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={[
-                    { category: "Cultural Attractions", percentage: 45 },
-                    { category: "Luxury Offerings", percentage: 58 },
-                    { category: "Local Experiences", percentage: 32 },
-                    { category: "Entertainment Options", percentage: 40 },
-                    { category: "Outdoor Activities", percentage: 28 }
-                  ]}
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-                  barSize={20}
-                >
-                  <XAxis type="number" domain={[0, 65]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="category" type="category" width={120} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="percentage" fill={NEW_COLORS.chart.barrier} radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
-              While luxury offerings have relatively higher awareness (58%), other important categories like cultural attractions (45%) and local experiences (32%) suffer from low awareness.
-            </p>
           </div>
-          
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Awareness by Market</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={[
-                    { market: "North America", awareness: 22 },
-                    { market: "Europe", awareness: 28 },
-                    { market: "Asia Pacific", awareness: 35 },
-                    { market: "Middle East", awareness: 62 },
-                    { market: "Africa", awareness: 30 }
-                  ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  barSize={30}
-                >
-                  <XAxis dataKey="market" axisLine={false} tickLine={false} />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tickFormatter={(value) => `${value}%`}
-                    domain={[0, 70]}
-                  />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="awareness" fill={NEW_COLORS.chart.barrier} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              Awareness of Qatar's tourism offerings is significantly higher in the Middle East region (62%) compared to key long-haul markets like North America (22%) and Europe (28%).
-            </p>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Information Sources Used</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: "Social Media", value: 38 },
-                      { name: "Travel Publications", value: 24 },
-                      { name: "Word of Mouth", value: 18 },
-                      { name: "Online Reviews", value: 12 },
-                      { name: "Travel Agencies", value: 8 }
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {[...Array(5)].map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={[
-                        NEW_COLORS.chart.barrier,
-                        "#F6AD55",
-                        "#FC8181",
-                        "#F6E05E",
-                        "#68D391"
-                      ][index]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => `${value}%`} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              Social media (38%) and travel publications (24%) are the primary information sources used by premium travelers researching destinations.
-            </p>
-          </div>
-          
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Quarterly Trends: Awareness Barrier</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={[
-                    { quarter: "Q1 2023", value: 67 },
-                    { quarter: "Q3 2023", value: 68 },
-                    { quarter: "Q1 2024", value: 71 },
-                    { quarter: "Q3 2024", value: 72 }
-                  ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <XAxis dataKey="quarter" axisLine={false} tickLine={false} />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tickFormatter={(value) => `${value}%`}
-                    domain={[65, 75]}
-                  />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke={NEW_COLORS.chart.barrier} 
-                    strokeWidth={3}
-                    dot={{ r: 6 }}
-                    activeDot={{ r: 8 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              La barrera de concienciación ha aumentado ligeramente del 67% al 72% durante el último año, lo que sugiere que los esfuerzos de marketing no han seguido el ritmo de los destinos competitivos.
-            </p>
-          </div>
-        </div>
-        
-        <div className="bg-orange-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-orange-800 mb-3">Key Insights: Awareness Gap</h3>
-          <ul className="space-y-2">
-            <li className="flex items-start">
-              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">North American and European markets should be prioritized for awareness campaigns, given their large potential combined with very low current awareness.</span>
-            </li>
-            <li className="flex items-start">
-              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">Social media platforms represent the most effective channel for raising awareness among premium travelers considering new destinations.</span>
-            </li>
-            <li className="flex items-start">
-              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">Highlighting cultural attractions and local experiences should be a focus, as these categories currently have the most significant awareness gaps.</span>
-            </li>
-            <li className="flex items-start">
-              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">The growing awareness gap suggests a need for more aggressive and targeted marketing campaigns to compete effectively with regional rivals.</span>
-            </li>
-          </ul>
         </div>
       </div>
 
       {/* Perceived Cultural Restrictions Deep Dive - Sección actualizada */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
         <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Perceived Cultural Restrictions: Deep Dive</h2>
         
         <div className="mb-6">
@@ -1044,307 +1314,1111 @@ const MotivationsSection = ({ data }) => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Specific Restriction Concerns</h3>
-            <div className="h-64">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#E53E3E] mr-2"></div>
+              Specific Restriction Concerns
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   layout="vertical"
                   data={motivationsData.perceivedRestrictions.specific}
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-                  barSize={20}
+                  margin={{ top: 5, right: 50, left: 20, bottom: 5 }}
+                  barSize={14}
                 >
-                  <XAxis type="number" domain={[0, 50]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="restriction" type="category" width={120} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="percentage" fill={NEW_COLORS.chart.restrictions} radius={[0, 4, 4, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
+                  <XAxis 
+                    type="number" 
+                    domain={[0, 50]} 
+                    tickFormatter={(value) => `${value}%`} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <YAxis 
+                    dataKey="restriction" 
+                    type="category" 
+                    width={140} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                    tickMargin={10}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="percentage" 
+                    fill={NEW_COLORS.chart.restrictions} 
+                    radius={[0, 4, 4, 0]} 
+                    label={renderCustomBarLabel}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-red-50 p-3 rounded-lg">
               Dress code concerns (42%) and alcohol limitations (38%) are the most significant specific cultural restrictions perceived by premium travelers.
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Perception by Age Group</h3>
-            <div className="h-64">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#E53E3E] mr-2"></div>
+              Perception by Age Group
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={motivationsData.perceivedRestrictions.byAge}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 20, right: 10, left: 10, bottom: 20 }}
                   barSize={30}
                 >
-                  <XAxis dataKey="group" axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+                  <XAxis 
+                    dataKey="group" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tickFormatter={(value) => `${value}%`}
                     domain={[0, 80]}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
                   />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="percentage" fill={NEW_COLORS.chart.restrictions} radius={[4, 4, 0, 0]} />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="percentage" 
+                    fill={NEW_COLORS.chart.restrictions} 
+                    radius={[4, 4, 0, 0]} 
+                    label={{ 
+                      position: 'top', 
+                      fill: '#4A5568',
+                      fontSize: 11,
+                      formatter: (value) => `${value}%`
+                    }}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-red-50 p-3 rounded-lg">
               Younger travelers (18-35) express significantly higher concerns about cultural restrictions compared to older age groups.
             </p>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Concerns by Market</h3>
-            <div className="h-64">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#E53E3E] mr-2"></div>
+              Concerns by Market
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={motivationsData.perceivedRestrictions.byMarket}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="market" />
-                  <PolarRadiusAxis angle={30} domain={[0, 80]} tickFormatter={(value) => `${value}%`} />
-                  <Radar name="Restriction Concerns" dataKey="value" stroke={NEW_COLORS.chart.restrictions} 
-                         fill={NEW_COLORS.chart.restrictions} fillOpacity={0.6} />
-                  <Tooltip formatter={(value) => `${value}%`} />
+                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={motivationsData.perceivedRestrictions.byMarket}>
+                  <PolarGrid gridType="polygon" stroke="#E2E8F0" />
+                  <PolarAngleAxis 
+                    dataKey="market"
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <PolarRadiusAxis 
+                    angle={30} 
+                    domain={[0, 80]} 
+                    tickFormatter={(value) => `${value}%`}
+                    tick={{ fill: '#4A5568', fontSize: 11 }}
+                    axisLine={false}
+                    tickCount={4}
+                  />
+                  <Radar 
+                    name="Restriction Concerns" 
+                    dataKey="value" 
+                    stroke={NEW_COLORS.chart.restrictions} 
+                    fill={NEW_COLORS.chart.restrictions} 
+                    fillOpacity={0.6} 
+                  />
+                  <Tooltip 
+                    formatter={(value) => `${value}%`}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-red-50 p-3 rounded-lg">
               North American (72%) and European (67%) travelers express the highest levels of concern about Qatar's cultural restrictions.
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Quarterly Trends: Perceived Restrictions</h3>
-            <div className="h-64">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#E53E3E] mr-2"></div>
+              Quarterly Trends
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={[
-                    { quarter: "Q1 2023", value: 73 },
-                    { quarter: "Q3 2023", value: 72 },
-                    { quarter: "Q1 2024", value: 69 },
-                    { quarter: "Q3 2024", value: 68 }
-                  ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  data={motivationsData.perceivedRestrictions.trends}
+                  margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
                 >
-                  <XAxis dataKey="quarter" axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis 
+                    dataKey="quarter" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tickFormatter={(value) => `${value}%`}
-                    domain={[60, 75]}
+                    domain={[60, 80]}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
                   />
-                  <Tooltip formatter={(value) => `${value}%`} />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, 'Restriction Concern']}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
                   <Line 
                     type="monotone" 
                     dataKey="value" 
+                    name="Restriction Concern"
                     stroke={NEW_COLORS.chart.restrictions} 
                     strokeWidth={3}
-                    dot={{ r: 6 }}
+                    dot={{ fill: NEW_COLORS.chart.restrictions, r: 6 }}
                     activeDot={{ r: 8 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
-              Las preocupaciones sobre restricciones culturales han mostrado una disminución constante, bajando del 73% en el primer trimestre de 2023 al 68% en el tercer trimestre de 2024.
+            <p className="text-sm text-gray-600 mt-3 bg-red-50 p-3 rounded-lg">
+              Concerns about cultural restrictions show a positive downward trend from 72% in Q3 2023 to 68% in Q2 2024, indicating gradual improvement in perception.
             </p>
           </div>
         </div>
         
-        <div className="bg-gray-50 p-4 rounded-lg mb-6">
-          <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Impact of Educational Content</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h4 className="font-medium text-[#4A5568] mb-2">Before Exposure to Educational Content</h4>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={motivationsData.perceivedRestrictions.awareness.before}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({name, percent}) => `${(percent * 100).toFixed(0)}%`}
+        <div className="grid grid-cols-1 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#E53E3E] mr-2"></div>
+              Impact of Educational Content
+            </h3>
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <div className="flex flex-col md:flex-row items-center">
+                  <div className="w-full md:w-1/2 h-96 flex flex-col justify-center">
+                    <div className="text-center mb-2">
+                      <h4 className="text-lg font-semibold text-[#4A5568]">Educational Impact on Concerns</h4>
+                    </div>
+                    <BarChart
+                      width={400}
+                      height={300}
+                      data={[
+                        { 
+                          name: "Very High Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[0].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[0].value,
+                          color: NEW_COLORS.chart.restrictions
+                        },
+                        { 
+                          name: "High Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[1].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[1].value,
+                          color: '#F56565'
+                        },
+                        { 
+                          name: "Moderate Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[2].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[2].value,
+                          color: '#ED8936'
+                        },
+                        { 
+                          name: "Low Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[3].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[3].value,
+                          color: '#ECC94B'
+                        },
+                        { 
+                          name: "No Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[4].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[4].value,
+                          color: '#48BB78'
+                        }
+                      ]}
+                      layout="vertical"
+                      margin={{ top: 20, right: 30, left: 120, bottom: 5 }}
                     >
-                      {motivationsData.perceivedRestrictions.awareness.before.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={index === 0 ? NEW_COLORS.chart.restrictions : 
-                              index === 1 ? '#F56565' : 
-                              index === 2 ? '#ED8936' : 
-                              index === 3 ? '#ECC94B' : 
-                              '#48BB78'} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.2} />
+                      <XAxis 
+                        type="number" 
+                        domain={[0, 45]}
+                        tickFormatter={(value) => `${value}%`}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#4A5568', fontSize: 11 }}
+                      />
+                      <YAxis 
+                        dataKey="name" 
+                        type="category"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#4A5568', fontSize: 12 }}
+                        width={120}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`${value}%`, null]}
+                        contentStyle={{ 
+                          borderRadius: '8px', 
+                          border: 'none', 
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                          padding: '10px'
+                        }}
+                      />
+                      <Legend 
+                        verticalAlign="top" 
+                        iconType="circle"
+                        iconSize={10}
+                        formatter={(value) => {
+                          return <span style={{ color: '#4A5568', fontSize: '12px' }}>{value}</span>
+                        }}
+                      />
+                      <Bar 
+                        dataKey="before" 
+                        name="Before Education" 
+                        fill="#A0AEC0" 
+                        barSize={15}
+                        radius={[0, 0, 0, 0]}
+                      >
+                        {[0, 1, 2, 3, 4].map((index) => (
+                          <Cell 
+                            key={`before-${index}`} 
+                            fill={index === 0 ? NEW_COLORS.chart.restrictions : 
+                                  index === 1 ? '#F56565' : 
+                                  index === 2 ? '#ED8936' : 
+                                  index === 3 ? '#ECC94B' : 
+                                  '#48BB78'} 
+                            fillOpacity={0.8}
+                          />
+                        ))}
+                      </Bar>
+                      <Bar 
+                        dataKey="after" 
+                        name="After Education" 
+                        fill="#4A5568" 
+                        barSize={15}
+                        radius={[0, 0, 0, 0]}
+                      >
+                        {[0, 1, 2, 3, 4].map((index) => (
+                          <Cell 
+                            key={`after-${index}`} 
+                            fill={index === 0 ? NEW_COLORS.chart.restrictions : 
+                                  index === 1 ? '#F56565' : 
+                                  index === 2 ? '#ED8936' : 
+                                  index === 3 ? '#ECC94B' : 
+                                  '#48BB78'} 
+                          />
+                        ))}
+                        <LabelList 
+                          dataKey="after" 
+                          position="right" 
+                          formatter={(value) => `${value}%`}
+                          style={{ fill: '#4A5568', fontSize: 11, fontWeight: 500 }}
+                        />
+                      </Bar>
+                    </BarChart>
+                  </div>
+                  
+                  <div className="w-full md:w-1/2 h-96 flex justify-center items-center">
+                    <div className="bg-white rounded-lg shadow-sm p-5 max-w-lg w-full">
+                      <h4 className="text-lg font-semibold text-[#4A5568] mb-4 text-center">Before vs After Educational Content</h4>
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b-2 border-gray-200">
+                            <th className="text-left pb-2">Concern Level</th>
+                            <th className="text-center pb-2">Before</th>
+                            <th className="text-center pb-2">After</th>
+                            <th className="text-center pb-2">Change</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {motivationsData.perceivedRestrictions.awareness.before.map((item, index) => {
+                            const afterValue = motivationsData.perceivedRestrictions.awareness.after[index].value;
+                            const change = afterValue - item.value;
+                            const changeColor = change < 0 ? 'text-red-600' : change > 0 ? 'text-green-600' : 'text-gray-600';
+                            
+                            return (
+                              <tr key={item.level} className="border-b border-gray-100">
+                                <td className="py-3 flex items-center">
+                                  <span className="inline-block w-3 h-3 rounded-full mr-2" 
+                                    style={{ 
+                                      backgroundColor: index === 0 ? NEW_COLORS.chart.restrictions : 
+                                                      index === 1 ? '#F56565' : 
+                                                      index === 2 ? '#ED8936' : 
+                                                      index === 3 ? '#ECC94B' : 
+                                                      '#48BB78'
+                                    }}>
+                                  </span>
+                                  <span className="text-sm">{item.level}</span>
+                                </td>
+                                <td className="py-3 text-center text-sm font-medium">{item.value}%</td>
+                                <td className="py-3 text-center text-sm font-medium">{afterValue}%</td>
+                                <td className={`py-3 text-center text-sm font-medium ${changeColor}`}>
+                                  {change > 0 ? '+' : ''}{change}%
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </ResponsiveContainer>
             </div>
-            <div>
-              <h4 className="font-medium text-[#4A5568] mb-2">After Exposure to Educational Content</h4>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={motivationsData.perceivedRestrictions.awareness.after}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({name, percent}) => `${(percent * 100).toFixed(0)}%`}
-                    >
-                      {motivationsData.perceivedRestrictions.awareness.after.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={index === 0 ? NEW_COLORS.chart.restrictions : 
-                              index === 1 ? '#F56565' : 
-                              index === 2 ? '#ED8936' : 
-                              index === 3 ? '#ECC94B' : 
-                              '#48BB78'} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="p-4 bg-red-50 rounded-lg mt-4">
+              <h4 className="font-medium text-red-800 mb-2">Key Educational Impact:</h4>
+              <p className="text-sm text-gray-700 mb-3">
+                Educational content about Qatar's cultural norms significantly reduces "Very High Concern" perceptions from <span className="font-bold">42%</span> to <span className="font-bold">18%</span>, 
+                while increasing "Low Concern" from <span className="font-bold">7%</span> to <span className="font-bold">20%</span>.
+              </p>
+              <p className="text-sm text-gray-700">
+                This demonstrates the effectiveness of targeted educational campaigns in addressing misconceptions and reducing perceived cultural barriers to travel.
+              </p>
             </div>
           </div>
-          <p className="text-sm text-gray-600 mt-2">
-            Educational content about Qatar's cultural norms significantly reduces "Very High Concern" perceptions from 42% to 18%, 
-            while increasing "Low Concern" from 7% to 20%.
-          </p>
         </div>
         
-        <div className="bg-red-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-red-800 mb-3">Key Insights: Cultural Restrictions</h3>
-          <ul className="space-y-2">
-            <li className="flex items-start">
+        <div className="bg-red-50 p-5 rounded-lg">
+          <h3 className="text-lg font-medium text-red-800 mb-4">Key Insights: Cultural Restrictions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-red-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">Younger travelers (18-35) should be targeted for educational campaigns about cultural restrictions.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-red-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">Specific concerns about dress code and alcohol limitations should be addressed directly in marketing materials.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-red-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">North American and European markets require more focused educational campaigns about Qatar's cultural norms.</span>
-            </li>
-            <li className="flex items-start">
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-red-500 rounded-full mr-2 mt-2"></span>
               <span className="text-gray-700">The proven effectiveness of educational content suggests expanding these initiatives could significantly reduce perceived barriers.</span>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Cultural Appeal Deep Dive - Nueva sección */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Cultural Authenticity: Deep Dive</h2>
+      {/* Strategic Recommendations for Addressing Cultural Restrictions */}
+      <div className="bg-red-50 p-6 rounded-lg shadow mb-8">
+        <h3 className="text-lg font-semibold text-red-800 mb-4">Strategic Recommendations: Addressing Cultural Perceptions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="flex items-start mb-3">
+              <div className="bg-red-100 p-2 rounded-lg mr-3 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-medium text-red-700 text-lg">Educational Content</h4>
+                <p className="text-sm text-gray-600 mt-1">
+                  Create targeted educational materials for younger travelers (18-35) addressing specific concerns about dress code and alcohol limitations.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="flex items-start mb-3">
+              <div className="bg-red-100 p-2 rounded-lg mr-3 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-medium text-red-700 text-lg">Market Focus</h4>
+                <p className="text-sm text-gray-600 mt-1">
+                  Develop specialized campaigns for North American (72%) and European (67%) markets, which show the highest levels of concern.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="flex items-start mb-3">
+              <div className="bg-red-100 p-2 rounded-lg mr-3 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-medium text-red-700 text-lg">Visual Content</h4>
+                <p className="text-sm text-gray-600 mt-1">
+                  Increase usage of visual content showing the modern cultural environment to counter misconceptions about restrictions.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="flex items-start mb-3">
+              <div className="bg-red-100 p-2 rounded-lg mr-3 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-medium text-red-700 text-lg">Influencer Partnerships</h4>
+                <p className="text-sm text-gray-600 mt-1">
+                  Partner with travel influencers from key markets to showcase authentic experiences that dispel cultural misconceptions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Limited Awareness: Deep Dive */}
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Limited Awareness: Deep Dive</h2>
         
         <div className="mb-6">
           <p className="text-gray-700 mb-4">
-            With 78% of premium travelers valuing authentic cultural experiences when traveling, 
-            Qatar's rich cultural heritage represents a significant opportunity for differentiation in the region.
+            With 72% of premium travelers citing limited awareness as the primary barrier to visiting Qatar, 
+            understanding and addressing this knowledge gap is crucial for increasing visitor numbers.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Most Valued Cultural Experiences</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={[
-                    { experience: "Local Cuisine", percentage: 84 },
-                    { experience: "Historical Sites", percentage: 76 },
-                    { experience: "Local Traditions", percentage: 72 },
-                    { experience: "Art & Museums", percentage: 65 },
-                    { experience: "Cultural Festivals", percentage: 58 }
-                  ]}
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-                  barSize={20}
-                >
-                  <XAxis type="number" domain={[0, 90]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="experience" type="category" width={120} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="percentage" fill={NEW_COLORS.chart.cultural} radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              Local cuisine (84%) and historical sites (76%) are the most valued cultural experiences among premium travelers, representing significant opportunities for Qatar.
-            </p>
-          </div>
-          
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Cultural Interest by Age Group</h3>
-            <div className="h-64">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#DD6B20] mr-2"></div>
+              Market Awareness Disparities
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={[
-                    { group: "18-25", interest: 65 },
-                    { group: "26-35", interest: 72 },
-                    { group: "36-45", interest: 79 },
-                    { group: "46-60", interest: 84 },
-                    { group: "60+", interest: 88 }
+                    { market: "North America", percentage: 82 },
+                    { market: "Europe", percentage: 78 },
+                    { market: "Africa", percentage: 68 },
+                    { market: "Asia Pacific", percentage: 65 },
+                    { market: "Middle East", percentage: 58 }
                   ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 20, right: 10, left: 10, bottom: 20 }}
                   barSize={30}
                 >
-                  <XAxis dataKey="group" axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+                  <XAxis 
+                    dataKey="market" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tickFormatter={(value) => `${value}%`}
-                    domain={[0, 95]}
+                    domain={[0, 90]}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
                   />
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Bar dataKey="interest" fill={NEW_COLORS.chart.cultural} radius={[4, 4, 0, 0]} />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="percentage" 
+                    fill={NEW_COLORS.chart.barrier} 
+                    radius={[4, 4, 0, 0]} 
+                    label={{ 
+                      position: 'top', 
+                      fill: '#4A5568',
+                      fontSize: 11,
+                      formatter: (value) => `${value}%`
+                    }}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
-              Interest in cultural experiences increases significantly with age, with the highest interest among travelers aged 46+ (84-88%), suggesting a target opportunity for Qatar.
+            <p className="text-sm text-gray-600 mt-3 bg-orange-50 p-3 rounded-lg">
+              Awareness gaps are most significant in North American (82%) and European (78%) markets, representing key opportunities for targeted marketing campaigns.
+            </p>
+          </div>
+          
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#DD6B20] mr-2"></div>
+              Content Knowledge Gaps
+            </h3>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  layout="vertical"
+                  data={[
+                    { category: "Cultural Activities", percentage: 78 },
+                    { category: "Entertainment Options", percentage: 74 },
+                    { category: "Unique Experiences", percentage: 71 },
+                    { category: "Seasonal Events", percentage: 68 },
+                    { category: "Luxury Offerings", percentage: 42 }
+                  ]}
+                  margin={{ top: 5, right: 50, left: 20, bottom: 5 }}
+                  barSize={14}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
+                  <XAxis 
+                    type="number" 
+                    domain={[0, 85]} 
+                    tickFormatter={(value) => `${value}%`} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <YAxis 
+                    dataKey="category" 
+                    type="category" 
+                    width={140} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                    tickMargin={10}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="percentage" 
+                    fill={NEW_COLORS.chart.barrier} 
+                    radius={[0, 4, 4, 0]} 
+                    label={renderCustomBarLabel}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-sm text-gray-600 mt-3 bg-orange-50 p-3 rounded-lg">
+              Knowledge gaps are most pronounced for cultural activities (78%) and entertainment options (74%), while luxury offerings are better known.
             </p>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Qatar's Cultural Strengths</h3>
-            <div className="h-64">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#DD6B20] mr-2"></div>
+              Awareness by Demographic
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
-                  { attribute: "Museums & Art", value: 82 },
-                  { attribute: "Architecture", value: 79 },
-                  { attribute: "Traditional Markets", value: 75 },
-                  { attribute: "Local Cuisine", value: 72 },
-                  { attribute: "Heritage Sites", value: 68 }
+                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={[
+                  { group: "18-25", value: 78 },
+                  { group: "26-35", value: 75 },
+                  { group: "36-45", value: 70 },
+                  { group: "46-60", value: 68 },
+                  { group: "60+", value: 65 }
                 ]}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="attribute" />
-                  <PolarRadiusAxis angle={30} domain={[0, 90]} tickFormatter={(value) => `${value}%`} />
-                  <Radar name="Cultural Strength" dataKey="value" stroke={NEW_COLORS.chart.cultural} 
-                         fill={NEW_COLORS.chart.cultural} fillOpacity={0.6} />
-                  <Tooltip formatter={(value) => `${value}%`} />
+                  <PolarGrid gridType="polygon" stroke="#E2E8F0" />
+                  <PolarAngleAxis 
+                    dataKey="group"
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <PolarRadiusAxis 
+                    angle={30} 
+                    domain={[0, 80]} 
+                    tickFormatter={(value) => `${value}%`}
+                    tick={{ fill: '#4A5568', fontSize: 11 }}
+                    axisLine={false}
+                    tickCount={4}
+                  />
+                  <Radar 
+                    name="Limited Awareness" 
+                    dataKey="value" 
+                    stroke={NEW_COLORS.chart.barrier} 
+                    fill={NEW_COLORS.chart.barrier} 
+                    fillOpacity={0.6} 
+                  />
+                  <Tooltip 
+                    formatter={(value) => `${value}%`}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
+            <p className="text-sm text-gray-600 mt-3 bg-orange-50 p-3 rounded-lg">
+              Awareness issues are most pronounced among younger travelers (18-35), suggesting opportunities for digital-first marketing strategies.
+            </p>
+          </div>
+          
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#DD6B20] mr-2"></div>
+              Quarterly Awareness Trends
+            </h3>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={[
+                    { quarter: "Q1 2023", awareness: 75, interest: 58 },
+                    { quarter: "Q3 2023", awareness: 73, interest: 61 },
+                    { quarter: "Q1 2024", awareness: 72, interest: 65 },
+                    { quarter: "Q3 2024", awareness: 72, interest: 69 }
+                  ]}
+                  margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis 
+                    dataKey="quarter" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tickFormatter={(value) => `${value}%`}
+                    domain={[50, 80]}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Legend iconType="circle" />
+                  <Line 
+                    type="monotone" 
+                    dataKey="awareness" 
+                    name="Limited Awareness"
+                    stroke={NEW_COLORS.chart.barrier}
+                    strokeWidth={3}
+                    dot={{ r: 6, strokeWidth: 2, fill: "white" }}
+                    activeDot={{ r: 8 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="interest" 
+                    name="Interest Level"
+                    stroke="#38A169"
+                    strokeWidth={3}
+                    dot={{ r: 6, strokeWidth: 2, fill: "white" }}
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-sm text-gray-600 mt-3 bg-orange-50 p-3 rounded-lg">
+              While awareness challenges have remained relatively stable, interest in visiting Qatar has increased by 11 percentage points year-over-year, suggesting effective but limited reach of current campaigns.
+            </p>
+          </div>
+        </div>
+        
+        <div className="bg-orange-50 p-5 rounded-lg">
+          <h3 className="text-lg font-medium text-orange-800 mb-4">Key Insights: Limited Awareness</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">North American and European markets should be prioritized for awareness campaigns, with a focus on cultural activities and entertainment options.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Younger travelers (18-35) require focused digital strategies that address their specific knowledge gaps and motivations.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Increasing interest despite stable awareness suggests that current efforts are effective but reaching a limited audience, indicating an opportunity to expand reach.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Leveraging Qatar's well-known luxury offerings as a gateway to promote less familiar cultural and entertainment options could accelerate awareness growth.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Cultural Authenticity: Deep Dive */}
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-[#8D1B3D]">Cultural Authenticity: Deep Dive</h2>
+        
+        <div className="mb-6">
+          <p className="text-gray-700 mb-4">
+            With 78% of premium travelers citing cultural authenticity as a primary motivator for visiting Qatar, 
+            leveraging this strong appeal is crucial for differentiation in the competitive luxury travel market.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+              Cultural Interest by Category
+            </h3>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  layout="vertical"
+                  data={[
+                    { category: "Traditional Markets & Souks", percentage: 76 },
+                    { category: "Authentic Local Cuisine", percentage: 72 },
+                    { category: "Museums & Heritage Sites", percentage: 68 },
+                    { category: "Local Festivals & Events", percentage: 65 },
+                    { category: "Traditional Crafts & Art", percentage: 62 }
+                  ]}
+                  margin={{ top: 5, right: 50, left: 20, bottom: 5 }}
+                  barSize={14}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
+                  <XAxis 
+                    type="number" 
+                    domain={[0, 80]} 
+                    tickFormatter={(value) => `${value}%`} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <YAxis 
+                    dataKey="category" 
+                    type="category" 
+                    width={165} 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                    tickMargin={10}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="percentage" 
+                    fill={NEW_COLORS.chart.cultural} 
+                    radius={[0, 4, 4, 0]} 
+                    label={renderCustomBarLabel}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
+              Traditional markets and souks (76%) and authentic local cuisine (72%) represent the strongest cultural appeals for premium travelers.
+            </p>
+          </div>
+          
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+              Cultural Appeal by Traveler Type
+            </h3>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: "Cultural Explorers", value: 42 },
+                      { name: "Luxury Experience Seekers", value: 35 },
+                      { name: "Authentic Foodies", value: 15 },
+                      { name: "History Enthusiasts", value: 8 }
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {[...Array(4)].map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={[
+                        NEW_COLORS.chart.cultural,
+                        "#38B2AC",
+                        "#4FD1C5",
+                        "#81E6D9"
+                      ][index]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value, name, props) => [
+                      `${value}%`, 
+                      props.payload.name
+                    ]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Legend 
+                    formatter={(value, entry, index) => (
+                      <span style={{ color: '#4A5568', fontSize: '12px' }}>
+                        {entry.payload.name}: {entry.payload.value}%
+                      </span>
+                    )}
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
+                    iconType="circle"
+                    iconSize={8}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
+              Cultural Explorers (42%) and Luxury Experience Seekers (35%) represent the largest segments interested in Qatar's authentic cultural offerings.
+            </p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+              Cultural Interest by Demographics
+            </h3>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={[
+                    { group: "18-25", cultural: 65, luxury: 75 },
+                    { group: "26-35", cultural: 80, luxury: 82 },
+                    { group: "36-45", cultural: 85, luxury: 88 },
+                    { group: "46-60", cultural: 82, luxury: 84 },
+                    { group: "60+", cultural: 76, luxury: 70 }
+                  ]}
+                  margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                  barSize={16}
+                  barGap={8}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+                  <XAxis 
+                    dataKey="group" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 11 }}
+                    angle={-10}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tickFormatter={(value) => `${value}%`}
+                    domain={[0, 90]}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                  <Legend 
+                    verticalAlign="top" 
+                    align="right" 
+                    iconType="circle"
+                  />
+                  <Bar 
+                    dataKey="cultural" 
+                    name="Cultural Interest" 
+                    fill={NEW_COLORS.chart.cultural} 
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="luxury" 
+                    name="Luxury Interest" 
+                    fill={NEW_COLORS.chart.motivator} 
+                    radius={[4, 4, 0, 0]} 
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
             <p className="text-sm text-gray-600 mt-2">
+              36-45 age travelers show the highest interest in cultural authenticity (85%), closely followed by 46-60 age group (82%) and 26-35 age group (80%).
+            </p>
+          </div>
+          
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+              Cultural Interest by Region
+            </h3>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={[
+                  { region: "North America", value: 82 },
+                  { region: "Europe", value: 85 },
+                  { region: "Asia Pacific", value: 75 },
+                  { region: "Middle East", value: 62 },
+                  { region: "Africa", value: 78 }
+                ]}>
+                  <PolarGrid gridType="polygon" stroke="#E2E8F0" />
+                  <PolarAngleAxis 
+                    dataKey="region"
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <PolarRadiusAxis 
+                    angle={30} 
+                    domain={[0, 90]} 
+                    tickFormatter={(value) => `${value}%`}
+                    tick={{ fill: '#4A5568', fontSize: 11 }}
+                    axisLine={false}
+                    tickCount={4}
+                  />
+                  <Radar 
+                    name="Cultural Interest" 
+                    dataKey="value" 
+                    stroke={NEW_COLORS.chart.cultural} 
+                    fill={NEW_COLORS.chart.cultural} 
+                    fillOpacity={0.6} 
+                  />
+                  <Tooltip 
+                    formatter={(value) => `${value}%`}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
+              European (85%) and North American (82%) travelers show the highest interest in authentic cultural experiences in Qatar.
+            </p>
+          </div>
+        </div>
+        
+        <div className="bg-green-50 p-5 rounded-lg">
+          <h3 className="text-lg font-medium text-green-800 mb-4">Key Insights: Cultural Authenticity</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Traditional markets, souks, and authentic cuisine represent the strongest cultural appeals and should be highlighted in marketing materials.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Marketing should target Cultural Explorers and Luxury Experience Seekers, particularly in the 36-45 age range, who show the highest interest in authentic experiences.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">European and North American markets should receive targeted cultural messaging, as they show both high awareness gaps and high cultural interest.</span>
+            </div>
+            <div className="flex items-start">
+              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
+              <span className="text-gray-700">Creating experiences that blend cultural authenticity with luxury elements will appeal to the largest segments of premium travelers interested in Qatar.</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+              Qatar's Cultural Strengths
+            </h3>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={[
+                  { category: "Museums & Art", value: 82 },
+                  { category: "Architecture", value: 79 },
+                  { category: "Traditional Markets", value: 76 },
+                  { category: "Local Cuisine", value: 72 },
+                  { category: "Heritage Sites", value: 68 }
+                ]}>
+                  <PolarGrid gridType="polygon" stroke="#E2E8F0" />
+                  <PolarAngleAxis 
+                    dataKey="category"
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
+                  <PolarRadiusAxis 
+                    angle={30} 
+                    domain={[0, 90]} 
+                    tickFormatter={(value) => `${value}%`}
+                    tick={{ fill: '#4A5568', fontSize: 11 }}
+                    axisLine={false}
+                    tickCount={5}
+                  />
+                  <Radar 
+                    name="Cultural Strength" 
+                    dataKey="value" 
+                    stroke={NEW_COLORS.chart.cultural} 
+                    fill={NEW_COLORS.chart.cultural} 
+                    fillOpacity={0.6} 
+                  />
+                  <Tooltip 
+                    formatter={(value) => `${value}%`}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
               Qatar's museums & art (82%) and architecture (79%) are perceived as its strongest cultural assets among premium travelers.
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-3 text-[#4A5568]">Quarterly Trends: Cultural Appeal</h3>
-            <div className="h-64">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+              Quarterly Trends: Cultural Appeal
+            </h3>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={[
@@ -1353,77 +2427,70 @@ const MotivationsSection = ({ data }) => {
                     { quarter: "Q1 2024", value: 76 },
                     { quarter: "Q3 2024", value: 78 }
                   ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                 >
-                  <XAxis dataKey="quarter" axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis 
+                    dataKey="quarter" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
+                  />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tickFormatter={(value) => `${value}%`}
                     domain={[70, 80]}
+                    tick={{ fill: '#4A5568', fontSize: 12 }}
                   />
-                  <Tooltip formatter={(value) => `${value}%`} />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, null]}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      padding: '10px'
+                    }}
+                  />
                   <Line 
                     type="monotone" 
                     dataKey="value" 
-                    stroke={NEW_COLORS.chart.cultural}
+                    name="Cultural Appeal" 
+                    stroke={NEW_COLORS.chart.cultural} 
                     strokeWidth={3}
-                    dot={{ r: 6 }}
+                    dot={{ fill: NEW_COLORS.chart.cultural, r: 6 }}
                     activeDot={{ r: 8 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
               El interés en experiencias culturales auténticas ha mostrado un crecimiento constante durante el último año, aumentando del 72% en el primer trimestre de 2023 al 78% en el tercer trimestre de 2024.
             </p>
           </div>
         </div>
         
-        <div className="bg-green-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-green-800 mb-3">Key Insights: Cultural Appeal</h3>
-          <ul className="space-y-2">
-            <li className="flex items-start">
+        <div className="bg-green-50 p-5 rounded-lg">
+          <h3 className="text-lg font-medium text-green-800 mb-4">Key Insights: Cultural Authenticity</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">Qatar's cultural offerings align well with premium travelers' growing interest in authentic experiences, providing a strong differentiation point from competitors.</span>
-            </li>
-            <li className="flex items-start">
+              <span className="text-gray-700">Traditional markets, souks, and authentic cuisine represent the strongest cultural appeals and should be highlighted in marketing materials.</span>
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">Marketing efforts should particularly target travelers aged 46+ who show the highest interest in cultural experiences.</span>
-            </li>
-            <li className="flex items-start">
+              <span className="text-gray-700">Marketing should target Cultural Explorers and Luxury Experience Seekers, particularly in the 36-45 age range, who show the highest interest in authentic experiences.</span>
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">Qatar's museums, architecture, and traditional markets should be highlighted as they represent recognized cultural strengths.</span>
-            </li>
-            <li className="flex items-start">
+              <span className="text-gray-700">European and North American markets should receive targeted cultural messaging, as they show both high awareness gaps and high cultural interest.</span>
+            </div>
+            <div className="flex items-start">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">The consistent upward trend in cultural interest suggests that Qatar should continue investing in preserving and promoting its cultural assets.</span>
-            </li>
-          </ul>
+              <span className="text-gray-700">Creating experiences that blend cultural authenticity with luxury elements will appeal to the largest segments of premium travelers interested in Qatar.</span>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Strategic Recommendations for Addressing Cultural Restrictions */}
-      <div className="bg-red-50 p-4 rounded-lg shadow">
-        <h3 className="text-lg font-medium text-red-800 mb-3">Strategic Recommendations: Addressing Cultural Perceptions</h3>
-        <ul className="space-y-2">
-          <li className="flex items-start">
-            <span className="w-2 h-2 bg-red-500 rounded-full mr-2 mt-2"></span>
-            <span className="text-gray-700">Younger travelers (18-35) should be targeted for educational campaigns about cultural restrictions.</span>
-          </li>
-          <li className="flex items-start">
-            <span className="w-2 h-2 bg-red-500 rounded-full mr-2 mt-2"></span>
-            <span className="text-gray-700">Specific concerns about dress code and alcohol limitations should be addressed directly in marketing materials.</span>
-          </li>
-          <li className="flex items-start">
-            <span className="w-2 h-2 bg-red-500 rounded-full mr-2 mt-2"></span>
-            <span className="text-gray-700">North American and European markets require more focused educational campaigns about Qatar's cultural norms.</span>
-          </li>
-          <li className="flex items-start">
-            <span className="w-2 h-2 bg-red-500 rounded-full mr-2 mt-2"></span>
-            <span className="text-gray-700">The proven effectiveness of educational content suggests expanding these initiatives could significantly reduce perceived barriers.</span>
-          </li>
-        </ul>
       </div>
     </div>
   );
