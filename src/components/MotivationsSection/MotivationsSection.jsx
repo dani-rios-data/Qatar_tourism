@@ -2094,269 +2094,167 @@ const MotivationsSection = ({ data }) => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="bg-gray-50 p-5 rounded-lg">
-            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
-              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
-              Cultural Interest by Category
-            </h3>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={[
-                    { category: "Traditional Markets & Souks", percentage: 76 },
-                    { category: "Authentic Local Cuisine", percentage: 72 },
-                    { category: "Museums & Heritage Sites", percentage: 68 },
-                    { category: "Local Festivals & Events", percentage: 65 },
-                    { category: "Traditional Crafts & Art", percentage: 62 }
-                  ]}
-                  margin={{ top: 5, right: 50, left: 20, bottom: 5 }}
-                  barSize={14}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={true} vertical={false} />
-                  <XAxis 
-                    type="number" 
-                    domain={[0, 80]} 
-                    tickFormatter={(value) => `${value}%`} 
-                    axisLine={false} 
-                    tickLine={false}
-                    tick={{ fill: '#4A5568', fontSize: 12 }}
-                  />
-                  <YAxis 
-                    dataKey="category" 
-                    type="category" 
-                    width={165} 
-                    axisLine={false} 
-                    tickLine={false}
-                    tick={{ fill: '#4A5568', fontSize: 12 }}
-                    tickMargin={10}
-                  />
-                  <Tooltip 
-                    formatter={(value) => [`${value}%`, null]}
-                    contentStyle={{ 
-                      borderRadius: '8px', 
-                      border: 'none', 
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                      padding: '10px'
-                    }}
-                  />
-                  <Bar 
-                    dataKey="percentage" 
-                    fill={NEW_COLORS.chart.cultural} 
-                    radius={[0, 4, 4, 0]} 
-                    label={renderCustomBarLabel}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+          <div className="col-span-1">
+            <div className="bg-gray-50 p-5 rounded-lg mb-8">
+              <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+                <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+                Cultural Interest by Region
+              </h3>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="75%" data={[
+                    { category: "Middle East", value: 92 },
+                    { category: "Asia Pacific", value: 85 },
+                    { category: "Europe", value: 78 },
+                    { category: "North America", value: 72 },
+                    { category: "Latin America", value: 68 }
+                  ]}>
+                    <PolarGrid gridType="polygon" stroke="#E2E8F0" />
+                    <PolarAngleAxis 
+                      dataKey="category"
+                      tick={{ fill: '#4A5568', fontSize: 12 }}
+                    />
+                    <PolarRadiusAxis 
+                      angle={30} 
+                      domain={[0, 100]} 
+                      tickFormatter={(value) => `${value}%`}
+                      tick={{ fill: '#4A5568', fontSize: 11 }}
+                      axisLine={false}
+                      tickCount={5}
+                    />
+                    <Radar 
+                      name="Interest Level" 
+                      dataKey="value" 
+                      stroke={NEW_COLORS.chart.cultural} 
+                      fill={NEW_COLORS.chart.cultural} 
+                      fillOpacity={0.6} 
+                    />
+                    <Tooltip 
+                      formatter={(value) => `${value}%`}
+                      contentStyle={{ 
+                        borderRadius: '8px', 
+                        border: 'none', 
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                      }}
+                      labelStyle={{ color: '#2D3748', fontWeight: '600' }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-            <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
-              Traditional markets and souks (76%) and authentic local cuisine (72%) represent the strongest cultural appeals for premium travelers.
-            </p>
+
+            <div className="bg-gray-50 p-5 rounded-lg">
+              <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+                <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+                Cultural Interest by Demographics
+              </h3>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="75%" data={[
+                    { category: "18-35", value: 88 },
+                    { category: "36-50", value: 82 },
+                    { category: "51-65", value: 75 },
+                    { category: "66+", value: 68 }
+                  ]}>
+                    <PolarGrid gridType="polygon" stroke="#E2E8F0" />
+                    <PolarAngleAxis 
+                      dataKey="category"
+                      tick={{ fill: '#4A5568', fontSize: 12 }}
+                    />
+                    <PolarRadiusAxis 
+                      angle={30} 
+                      domain={[0, 100]} 
+                      tickFormatter={(value) => `${value}%`}
+                      tick={{ fill: '#4A5568', fontSize: 11 }}
+                      axisLine={false}
+                      tickCount={5}
+                    />
+                    <Radar 
+                      name="Interest Level" 
+                      dataKey="value" 
+                      stroke={NEW_COLORS.chart.cultural} 
+                      fill={NEW_COLORS.chart.cultural} 
+                      fillOpacity={0.6} 
+                    />
+                    <Tooltip 
+                      formatter={(value) => `${value}%`}
+                      contentStyle={{ 
+                        borderRadius: '8px', 
+                        border: 'none', 
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                      }}
+                      labelStyle={{ color: '#2D3748', fontWeight: '600' }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
           
-          <div className="bg-gray-50 p-5 rounded-lg">
-            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
-              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
-              Cultural Appeal by Traveler Type
-            </h3>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: "Cultural Explorers", value: 42 },
-                      { name: "Luxury Experience Seekers", value: 35 },
-                      { name: "Authentic Foodies", value: 15 },
-                      { name: "History Enthusiasts", value: 8 }
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {[...Array(4)].map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={[
-                        NEW_COLORS.chart.cultural,
-                        "#38B2AC",
-                        "#4FD1C5",
-                        "#81E6D9"
-                      ][index]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value, name, props) => [
-                      `${value}%`, 
-                      props.payload.name
-                    ]}
-                    contentStyle={{ 
-                      borderRadius: '8px', 
-                      border: 'none', 
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                      padding: '10px'
-                    }}
-                  />
-                  <Legend 
-                    formatter={(value, entry, index) => (
-                      <span style={{ color: '#4A5568', fontSize: '12px' }}>
-                        {entry.payload.name}: {entry.payload.value}%
-                      </span>
-                    )}
-                    layout="vertical"
-                    align="right"
-                    verticalAlign="middle"
-                    iconType="circle"
-                    iconSize={8}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
-              Cultural Explorers (42%) and Luxury Experience Seekers (35%) represent the largest segments interested in Qatar's authentic cultural offerings.
-            </p>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="bg-gray-50 p-5 rounded-lg">
-            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
-              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
-              Cultural Interest by Demographics
-            </h3>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={[
-                    { group: "18-25", cultural: 65, luxury: 75 },
-                    { group: "26-35", cultural: 80, luxury: 82 },
-                    { group: "36-45", cultural: 85, luxury: 88 },
-                    { group: "46-60", cultural: 82, luxury: 84 },
-                    { group: "60+", cultural: 76, luxury: 70 }
-                  ]}
-                  margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                  barSize={16}
-                  barGap={8}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
-                  <XAxis 
-                    dataKey="group" 
-                    axisLine={false} 
-                    tickLine={false}
-                    tick={{ fill: '#4A5568', fontSize: 11 }}
-                    angle={-10}
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tickFormatter={(value) => `${value}%`}
-                    domain={[0, 90]}
-                    tick={{ fill: '#4A5568', fontSize: 12 }}
-                  />
-                  <Tooltip 
-                    formatter={(value) => [`${value}%`, null]}
-                    contentStyle={{ 
-                      borderRadius: '8px', 
-                      border: 'none', 
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                      padding: '10px'
-                    }}
-                  />
-                  <Legend 
-                    verticalAlign="top" 
-                    align="right" 
-                    iconType="circle"
-                  />
-                  <Bar 
-                    dataKey="cultural" 
-                    name="Cultural Interest" 
-                    fill={NEW_COLORS.chart.cultural} 
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar 
-                    dataKey="luxury" 
-                    name="Luxury Interest" 
-                    fill={NEW_COLORS.chart.motivator} 
-                    radius={[4, 4, 0, 0]} 
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              36-45 age travelers show the highest interest in cultural authenticity (85%), closely followed by 46-60 age group (82%) and 26-35 age group (80%).
-            </p>
-          </div>
-          
-          <div className="bg-gray-50 p-5 rounded-lg">
-            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
-              <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
-              Cultural Interest by Region
-            </h3>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={[
-                  { region: "North America", value: 82 },
-                  { region: "Europe", value: 85 },
-                  { region: "Asia Pacific", value: 75 },
-                  { region: "Middle East", value: 62 },
-                  { region: "Africa", value: 78 }
-                ]}>
-                  <PolarGrid gridType="polygon" stroke="#E2E8F0" />
-                  <PolarAngleAxis 
-                    dataKey="region"
-                    tick={{ fill: '#4A5568', fontSize: 12 }}
-                  />
-                  <PolarRadiusAxis 
-                    angle={30} 
-                    domain={[0, 90]} 
-                    tickFormatter={(value) => `${value}%`}
-                    tick={{ fill: '#4A5568', fontSize: 11 }}
-                    axisLine={false}
-                    tickCount={4}
-                  />
-                  <Radar 
-                    name="Cultural Interest" 
-                    dataKey="value" 
-                    stroke={NEW_COLORS.chart.cultural} 
-                    fill={NEW_COLORS.chart.cultural} 
-                    fillOpacity={0.6} 
-                  />
-                  <Tooltip 
-                    formatter={(value) => `${value}%`}
-                    contentStyle={{ 
-                      borderRadius: '8px', 
-                      border: 'none', 
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                      padding: '10px'
-                    }}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
-              European (85%) and North American (82%) travelers show the highest interest in authentic cultural experiences in Qatar.
-            </p>
-          </div>
-        </div>
-        
-        <div className="bg-green-50 p-5 rounded-lg">
-          <h3 className="text-lg font-medium text-green-800 mb-4">Key Insights: Cultural Authenticity</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-start">
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">Traditional markets, souks, and authentic cuisine represent the strongest cultural appeals and should be highlighted in marketing materials.</span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">Marketing should target Cultural Explorers and Luxury Experience Seekers, particularly in the 36-45 age range, who show the highest interest in authentic experiences.</span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">European and North American markets should receive targeted cultural messaging, as they show both high awareness gaps and high cultural interest.</span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 mt-2"></span>
-              <span className="text-gray-700">Creating experiences that blend cultural authenticity with luxury elements will appeal to the largest segments of premium travelers interested in Qatar.</span>
+          <div className="col-span-1">
+            <div className="bg-gray-50 p-5 rounded-lg">
+              <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
+                <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
+                Cultural Appeal by Traveler Type
+              </h3>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "Cultural Explorers", value: 42 },
+                        { name: "Luxury Experience Seekers", value: 35 },
+                        { name: "Authentic Foodies", value: 15 },
+                        { name: "History Enthusiasts", value: 8 }
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={70}
+                      outerRadius={100}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {[...Array(4)].map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={[
+                          NEW_COLORS.chart.cultural,
+                          "#38B2AC",
+                          "#4FD1C5",
+                          "#81E6D9"
+                        ][index]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value, name, props) => [
+                        `${value}%`, 
+                        props.payload.name
+                      ]}
+                      contentStyle={{ 
+                        borderRadius: '8px', 
+                        border: 'none', 
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                        padding: '10px'
+                      }}
+                    />
+                    <Legend 
+                      formatter={(value, entry, index) => (
+                        <span style={{ color: '#4A5568', fontSize: '12px' }}>
+                          {entry.payload.name}: {entry.payload.value}%
+                        </span>
+                      )}
+                      layout="vertical"
+                      align="right"
+                      verticalAlign="middle"
+                      iconType="circle"
+                      iconSize={8}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-sm text-gray-600 mt-3 bg-green-50 p-3 rounded-lg">
+                Cultural Explorers (42%) and Luxury Experience Seekers (35%) represent the largest segments interested in Qatar's authentic cultural offerings.
+              </p>
             </div>
           </div>
         </div>
