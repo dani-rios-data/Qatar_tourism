@@ -1526,172 +1526,188 @@ const MotivationsSection = ({ data }) => {
           <div className="bg-gray-50 p-5 rounded-lg">
             <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
               <div className="w-3 h-3 rounded-full bg-[#E53E3E] mr-2"></div>
-              Educational Content Effectiveness
+              Educational Impact on Concerns
             </h3>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={[
-                    { 
-                      type: "Interactive Guides",
-                      effectiveness: 85,
-                      engagement: 78,
-                      color: NEW_COLORS.chart.restrictions
-                    },
-                    { 
-                      type: "Video Content",
-                      effectiveness: 82,
-                      engagement: 85,
-                      color: '#F56565'
-                    },
-                    { 
-                      type: "Cultural Workshops",
-                      effectiveness: 75,
-                      engagement: 70,
-                      color: '#ED8936'
-                    },
-                    { 
-                      type: "Social Media",
-                      effectiveness: 72,
-                      engagement: 88,
-                      color: '#ECC94B'
-                    },
-                    { 
-                      type: "Written Articles",
-                      effectiveness: 65,
-                      engagement: 55,
-                      color: '#48BB78'
-                    }
-                  ]}
-                  layout="vertical"
-                  margin={{ top: 25, right: 45, left: 100, bottom: 5 }}
-                  barGap={4}
-                >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.2} />
-                  <XAxis 
-                    type="number" 
-                    domain={[0, 100]}
-                    tickFormatter={(value) => `${value}%`}
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#4A5568', fontSize: 11 }}
-                    padding={{ left: 0, right: 10 }}
-                  />
-                  <YAxis 
-                    dataKey="type" 
-                    type="category"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#4A5568', fontSize: 11 }}
-                    width={95}
-                    tickMargin={5}
-                  />
-                  <Tooltip 
-                    formatter={(value, name) => [`${value}%`, name === "effectiveness" ? "Effectiveness" : "Engagement Rate"]}
-                    contentStyle={{ 
-                      borderRadius: '8px', 
-                      border: 'none', 
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                      padding: '10px'
-                    }}
-                    cursor={{ fill: 'transparent' }}
-                  />
-                  <Legend 
-                    verticalAlign="top" 
-                    height={36}
-                    iconType="circle"
-                    iconSize={8}
-                    formatter={(value) => {
-                      return <span style={{ color: '#4A5568', fontSize: '11px' }}>
-                        {value === "effectiveness" ? "Effectiveness" : "Engagement Rate"}
-                      </span>
-                    }}
-                  />
-                  <Bar 
-                    dataKey="effectiveness" 
-                    name="effectiveness" 
-                    fill="#E53E3E" 
-                    barSize={10}
-                    radius={[0, 2, 2, 0]}
-                  />
-                  <Bar 
-                    dataKey="engagement" 
-                    name="engagement" 
-                    fill="#805AD5" 
-                    barSize={10}
-                    radius={[0, 2, 2, 0]}
-                  >
-                    <LabelList 
-                      dataKey="engagement" 
-                      position="right" 
-                      formatter={(value) => `${value}%`}
-                      style={{ fill: '#4A5568', fontSize: 10, fontWeight: 500 }}
-                      offset={5}
-                    />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="p-4 bg-red-50 rounded-lg mt-4">
-              <h4 className="font-medium text-red-800 mb-2">Content Strategy Insights:</h4>
-              <p className="text-sm text-gray-700">
-                Interactive guides and video content show the highest effectiveness in reducing cultural concerns, while social media drives the highest engagement rates. This suggests a multi-channel approach combining interactive and social content would be most effective.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-5 rounded-lg">
-            <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
-              <div className="w-3 h-3 rounded-full bg-[#E53E3E] mr-2"></div>
-              Before vs After Educational Content
-            </h3>
-            <div className="h-72">
-              <div className="bg-white rounded-lg shadow-sm p-5 h-full">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b-2 border-gray-200">
-                      <th className="text-left pb-2">Concern Level</th>
-                      <th className="text-center pb-2">Before</th>
-                      <th className="text-center pb-2">After</th>
-                      <th className="text-center pb-2">Change</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {motivationsData.perceivedRestrictions.awareness.before.map((item, index) => {
-                      const afterValue = motivationsData.perceivedRestrictions.awareness.after[index].value;
-                      const change = afterValue - item.value;
-                      const changeColor = change < 0 ? 'text-red-600' : change > 0 ? 'text-green-600' : 'text-gray-600';
-                      
-                      return (
-                        <tr key={item.level} className="border-b border-gray-100">
-                          <td className="py-3 flex items-center">
-                            <span className="inline-block w-3 h-3 rounded-full mr-2" 
-                              style={{ 
-                                backgroundColor: index === 0 ? NEW_COLORS.chart.restrictions : 
-                                                index === 1 ? '#F56565' : 
-                                                index === 2 ? '#ED8936' : 
-                                                index === 3 ? '#ECC94B' : 
-                                                '#48BB78'
-                              }}>
-                            </span>
-                            <span className="text-sm">{item.level}</span>
-                          </td>
-                          <td className="py-3 text-center text-sm font-medium">{item.value}%</td>
-                          <td className="py-3 text-center text-sm font-medium">{afterValue}%</td>
-                          <td className={`py-3 text-center text-sm font-medium ${changeColor}`}>
-                            {change > 0 ? '+' : ''}{change}%
-                          </td>
+            <div className="h-96">
+              <div className="flex flex-col md:flex-row items-start justify-between h-full w-full">
+                <div className="w-full md:w-[48%] h-full">
+                  <div className="text-center mb-2">
+                    <h4 className="text-lg font-semibold text-[#4A5568]">Educational Impact on Concerns</h4>
+                  </div>
+                  <ResponsiveContainer width="100%" height="90%">
+                    <BarChart
+                      data={[
+                        { 
+                          name: "Very High Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[0].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[0].value,
+                          color: NEW_COLORS.chart.restrictions
+                        },
+                        { 
+                          name: "High Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[1].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[1].value,
+                          color: '#F56565'
+                        },
+                        { 
+                          name: "Moderate Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[2].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[2].value,
+                          color: '#ED8936'
+                        },
+                        { 
+                          name: "Low Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[3].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[3].value,
+                          color: '#ECC94B'
+                        },
+                        { 
+                          name: "No Concern", 
+                          before: motivationsData.perceivedRestrictions.awareness.before[4].value,
+                          after: motivationsData.perceivedRestrictions.awareness.after[4].value,
+                          color: '#48BB78'
+                        }
+                      ]}
+                      layout="vertical"
+                      margin={{ top: 20, right: 30, left: 120, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.2} />
+                      <XAxis 
+                        type="number" 
+                        domain={[0, 45]}
+                        tickFormatter={(value) => `${value}%`}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#4A5568', fontSize: 11 }}
+                      />
+                      <YAxis 
+                        dataKey="name" 
+                        type="category"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#4A5568', fontSize: 12 }}
+                        width={120}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`${value}%`, null]}
+                        contentStyle={{ 
+                          borderRadius: '8px', 
+                          border: 'none', 
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                          padding: '10px'
+                        }}
+                      />
+                      <Legend 
+                        verticalAlign="top" 
+                        iconType="circle"
+                        iconSize={10}
+                        formatter={(value) => {
+                          return <span style={{ color: '#4A5568', fontSize: '12px' }}>{value}</span>
+                        }}
+                      />
+                      <Bar 
+                        dataKey="before" 
+                        name="Before Education" 
+                        fill="#A0AEC0" 
+                        barSize={15}
+                        radius={[0, 0, 0, 0]}
+                      >
+                        {[0, 1, 2, 3, 4].map((index) => (
+                          <Cell 
+                            key={`before-${index}`} 
+                            fill={index === 0 ? NEW_COLORS.chart.restrictions : 
+                                  index === 1 ? '#F56565' : 
+                                  index === 2 ? '#ED8936' : 
+                                  index === 3 ? '#ECC94B' : 
+                                  '#48BB78'} 
+                            fillOpacity={0.8}
+                          />
+                        ))}
+                      </Bar>
+                      <Bar 
+                        dataKey="after" 
+                        name="After Education" 
+                        fill="#4A5568" 
+                        barSize={15}
+                        radius={[0, 0, 0, 0]}
+                      >
+                        {[0, 1, 2, 3, 4].map((index) => (
+                          <Cell 
+                            key={`after-${index}`} 
+                            fill={index === 0 ? NEW_COLORS.chart.restrictions : 
+                                  index === 1 ? '#F56565' : 
+                                  index === 2 ? '#ED8936' : 
+                                  index === 3 ? '#ECC94B' : 
+                                  '#48BB78'} 
+                          />
+                        ))}
+                        <LabelList 
+                          dataKey="after" 
+                          position="right" 
+                          formatter={(value) => `${value}%`}
+                          style={{ fill: '#4A5568', fontSize: 11, fontWeight: 500 }}
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                <div className="w-full md:w-[48%] h-full mt-8 md:mt-0">
+                  <div className="text-center mb-2">
+                    <h4 className="text-lg font-semibold text-[#4A5568]">Before vs After Educational Content</h4>
+                  </div>
+                  <div className="bg-white rounded-lg shadow-sm p-5 mt-4">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b-2 border-gray-200">
+                          <th className="text-left pb-2">Concern Level</th>
+                          <th className="text-center pb-2">Before</th>
+                          <th className="text-center pb-2">After</th>
+                          <th className="text-center pb-2">Change</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        {motivationsData.perceivedRestrictions.awareness.before.map((item, index) => {
+                          const afterValue = motivationsData.perceivedRestrictions.awareness.after[index].value;
+                          const change = afterValue - item.value;
+                          const changeColor = change < 0 ? 'text-red-600' : change > 0 ? 'text-green-600' : 'text-gray-600';
+                          
+                          return (
+                            <tr key={item.level} className="border-b border-gray-100">
+                              <td className="py-3 flex items-center">
+                                <span className="inline-block w-3 h-3 rounded-full mr-2" 
+                                  style={{ 
+                                    backgroundColor: index === 0 ? NEW_COLORS.chart.restrictions : 
+                                                    index === 1 ? '#F56565' : 
+                                                    index === 2 ? '#ED8936' : 
+                                                    index === 3 ? '#ECC94B' : 
+                                                    '#48BB78'
+                                  }}>
+                                </span>
+                                <span className="text-sm">{item.level}</span>
+                              </td>
+                              <td className="py-3 text-center text-sm font-medium">{item.value}%</td>
+                              <td className="py-3 text-center text-sm font-medium">{afterValue}%</td>
+                              <td className={`py-3 text-center text-sm font-medium ${changeColor}`}>
+                                {change > 0 ? '+' : ''}{change}%
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="p-4 bg-red-50 rounded-lg mt-4">
-              <h4 className="font-medium text-red-800 mb-2">Impact Analysis:</h4>
+              <h4 className="font-medium text-red-800 mb-2">Key Educational Impact:</h4>
+              <p className="text-sm text-gray-700 mb-3">
+                Educational content about Qatar's cultural norms significantly reduces "Very High Concern" perceptions from <span className="font-bold">42%</span> to <span className="font-bold">18%</span>, 
+                while increasing "Low Concern" from <span className="font-bold">7%</span> to <span className="font-bold">20%</span>.
+              </p>
               <p className="text-sm text-gray-700">
-                The data shows a significant shift from high to low concern levels after exposure to educational content, indicating its effectiveness in addressing cultural misconceptions.
+                This demonstrates the effectiveness of targeted educational campaigns in addressing misconceptions and reducing perceived cultural barriers to travel.
               </p>
             </div>
           </div>
