@@ -2143,54 +2143,6 @@ const MotivationsSection = ({ data }) => {
                 </ResponsiveContainer>
               </div>
             </div>
-
-            <div className="bg-gray-50 p-5 rounded-lg">
-              <h3 className="text-lg font-medium mb-4 text-[#4A5568] flex items-center">
-                <div className="w-3 h-3 rounded-full bg-[#38A169] mr-2"></div>
-                Cultural Interest by Demographics
-              </h3>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="75%" data={[
-                    { category: "18-35", value: 88 },
-                    { category: "36-50", value: 82 },
-                    { category: "51-65", value: 75 },
-                    { category: "66+", value: 68 }
-                  ]}>
-                    <PolarGrid gridType="polygon" stroke="#E2E8F0" />
-                    <PolarAngleAxis 
-                      dataKey="category"
-                      tick={{ fill: '#4A5568', fontSize: 12 }}
-                    />
-                    <PolarRadiusAxis 
-                      angle={30} 
-                      domain={[0, 100]} 
-                      tickFormatter={(value) => `${value}%`}
-                      tick={{ fill: '#4A5568', fontSize: 11 }}
-                      axisLine={false}
-                      tickCount={5}
-                    />
-                    <Radar 
-                      name="Interest Level" 
-                      dataKey="value" 
-                      stroke={NEW_COLORS.chart.cultural} 
-                      fill={NEW_COLORS.chart.cultural} 
-                      fillOpacity={0.6} 
-                    />
-                    <Tooltip 
-                      formatter={(value) => `${value}%`}
-                      contentStyle={{ 
-                        borderRadius: '8px', 
-                        border: 'none', 
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                      }}
-                      labelStyle={{ color: '#2D3748', fontWeight: '600' }}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
           </div>
           
           <div className="col-span-1">
