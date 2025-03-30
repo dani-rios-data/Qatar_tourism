@@ -1,415 +1,216 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import ExecutiveSummary from './ExecutiveSummary/ExecutiveSummary';
-import PerceptionsSection from './PerceptionsSection/PerceptionsSection';
-import MotivationsSection from './MotivationsSection/MotivationsSection';
-import BehaviorsSection from './BehaviorsSection/BehaviorsSection';
-import CompetitiveLandscapeSection from './CompetitiveLandscapeSection/CompetitiveLandscapeSection';
+import React, { useState } from 'react';
+import DataOverviewTab from './tabs/data_overview/DataOverviewTab';
+import ExecutiveSummaryTab from './tabs/executive_summary/ExecutiveSummaryTab';
+import PerceptionQatarTab from './tabs/perception_qatar/PerceptionQatarTab';
+import TravelMotivationsBarriersTab from './tabs/motivations_barriers/TravelMotivationsBarriersTab';
+import TravelBehaviorsTab from './tabs/travel_behaviors/TravelBehaviorsTab';
+import CompetitiveLandscapeTab from './tabs/competitive_landscape/CompetitiveLandscapeTab';
 
-// Define colors using Qatar's national colors and complementary palette
-const COLORS = ['#8D1B3D', '#1A4D2E', '#B8A88F', '#A7754D', '#D4B391', '#C29591', '#6B7280'];
+// Componente separado para el filtro de país
+const CountryFilter = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const handleApply = () => {
+    setIsOpen(false);
+  };
+  
+  const handleClear = () => {
+    setIsOpen(false);
+  };
+  
+  return (
+    <div className="w-full fixed top-[64px] left-0 right-0 bg-white py-3 border-b border-gray-200 z-50" 
+         style={{ minHeight: '50px', boxSizing: 'border-box' }}>
+      <div className="w-full px-6">
+        <div className="flex justify-start items-center">
+          <div className="relative">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Audience Country Residence:</span>
+              <div className="relative" style={{ zIndex: 1 }}>
+                <button 
+                  className="bg-white border border-gray-300 rounded-md px-3 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                  <span className="text-sm font-medium">United States</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                    <path d={isOpen ? "m18 15-6-6-6 6" : "m6 9 6 6 6-6"}/>
+                  </svg>
+                </button>
+                
+                {/* Dropdown centrado exactamente debajo del botón */}
+                {isOpen && (
+                  <div 
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      zIndex: 9999,
+                      marginTop: '4px',
+                      filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))',
+                      width: '100%'
+                    }}
+                  >
+                    <div className="bg-white border border-gray-300 rounded-md overflow-hidden" style={{ minWidth: '240px' }}>
+                      <div className="py-2">
+                        <div 
+                          className="flex items-center px-3 py-2 rounded-md bg-blue-50 mx-2 cursor-pointer hover:bg-blue-100 transition-colors duration-150"
+                        >
+                          <div className="w-5 h-5 text-white bg-blue-500 rounded-sm mr-3 flex items-center justify-center">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </div>
+                          <span className="text-sm font-medium text-gray-800">United States</span>
+                        </div>
+                      </div>
+                      
+                      {/* Botones de acción */}
+                      <div className="flex justify-between border-t border-gray-200 p-2 px-3">
+                        <button 
+                          className="text-sm text-gray-600 px-2 py-1 hover:underline transition-colors duration-150"
+                          onClick={handleClear}
+                        >
+                          Clear
+                        </button>
+                        <button 
+                          className="text-sm text-white bg-blue-600 px-4 py-1 rounded hover:bg-blue-700 transition-colors duration-150"
+                          onClick={handleApply}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const QatarDashboard = () => {
-  const [activeSection, setActiveSection] = useState('summary');
-  const [surveyData, setSurveyData] = useState({
-    vacationImportance: [],
-    newVsPrevious: [],
-    businessAttitudes: [],
-    ecoAttitudes: [],
-    carbonConcern: [],
-    travelBarriers: []
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        // Cargar los archivos JSON procesados en lugar de los CSV
-        const [q1_2023, q3_2023, q1_2024, q3_2024] = await Promise.all([
-          fetch('/data/processed/q1_2023.json').then(res => res.json()),
-          fetch('/data/processed/q3_2023.json').then(res => res.json()),
-          fetch('/data/processed/q1_2024.json').then(res => res.json()),
-          fetch('/data/processed/q3_2024.json').then(res => res.json())
-        ]);
-        
-        // Estructurar los datos para el dashboard
-        const processedData = {
-          vacationImportance: extractDataFromJson('Importance of Vacations', { 
-            'Q1 2023': q1_2023, 
-            'Q3 2023': q3_2023, 
-            'Q1 2024': q1_2024,
-            'Q3 2024': q3_2024 
-          }),
-          newVsPrevious: extractDataFromJson('New Versus Previous Destinations', { 
-            'Q1 2023': q1_2023, 
-            'Q3 2023': q3_2023, 
-            'Q1 2024': q1_2024,
-            'Q3 2024': q3_2024 
-          }),
-          businessAttitudes: extractDataFromJson('Business Travel Attitudes', { 
-            'Q1 2023': q1_2023, 
-            'Q3 2023': q3_2023, 
-            'Q1 2024': q1_2024,
-            'Q3 2024': q3_2024 
-          }),
-          ecoAttitudes: extractDataFromJson('Eco & Experience Attitudes', { 
-            'Q1 2023': q1_2023, 
-            'Q3 2023': q3_2023, 
-            'Q1 2024': q1_2024,
-            'Q3 2024': q3_2024 
-          }),
-          carbonConcern: extractDataFromJson('Concern Over Carbon Footprint', { 
-            'Q1 2023': q1_2023, 
-            'Q3 2023': q3_2023, 
-            'Q1 2024': q1_2024,
-            'Q3 2024': q3_2024 
-          }),
-          travelBarriers: extractDataFromJson('Reasons for Not Traveling', { 
-            'Q1 2023': q1_2023, 
-            'Q3 2023': q3_2023, 
-            'Q1 2024': q1_2024,
-            'Q3 2024': q3_2024 
-          })
-        };
-        
-        setSurveyData(processedData);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error loading data:", err);
-        setError("Failed to load survey data");
-        setLoading(false);
-      }
-    }
-    
-    loadData();
-  }, []);
-
-  // Extrae datos específicos de los archivos JSON procesados
-  function extractDataFromJson(questionLabel, jsonData) {
-    const result = {
-      byPeriod: {},
-      trend: []
-    };
-    
-    // Procesar cada período
-    Object.keys(jsonData).forEach(period => {
-      let questionData;
-      
-      // Buscar en perceptions, motivationsBarriers, behaviors, etc.
-      if (jsonData[period].perceptions) {
-        questionData = jsonData[period].perceptions.filter(item => 
-          item.question === questionLabel
-        );
-      }
-      
-      if (!questionData || questionData.length === 0 && jsonData[period].motivationsBarriers) {
-        questionData = jsonData[period].motivationsBarriers.filter(item => 
-          item.question === questionLabel
-        );
-      }
-      
-      if (!questionData || questionData.length === 0 && jsonData[period].behaviors) {
-        questionData = jsonData[period].behaviors.filter(item => 
-          item.question === questionLabel
-        );
-      }
-      
-      result.byPeriod[period] = questionData ? questionData.map(item => ({
-        attribute: item.attribute,
-        audiencePercentage: item.value,
-        responses: item.responses
-      })) : [];
-    });
-    
-    // Crear datos de tendencia para cada atributo
-    const allAttributes = new Set();
-    Object.values(result.byPeriod).forEach(periodData => {
-      periodData.forEach(item => allAttributes.add(item.attribute));
-    });
-    
-    [...allAttributes].forEach(attribute => {
-      const trendItem = { attribute };
-      
-      Object.keys(result.byPeriod).forEach(period => {
-        const match = result.byPeriod[period].find(item => item.attribute === attribute);
-        trendItem[period] = match ? match.audiencePercentage : 0;
-      });
-      
-      result.trend.push(trendItem);
-    });
-    
-    return result;
-  }
-
-  // Process data for a specific question across time periods
-  function processQuestionData(questionLabel, dataByPeriod) {
-    const result = {
-      byPeriod: {},
-      trend: []
-    };
-    
-    // Process each time period
-    Object.keys(dataByPeriod).forEach(period => {
-      const periodData = dataByPeriod[period];
-      const questionData = periodData.filter(item => 
-        item['Short Label Question'] === questionLabel
-      );
-      
-      result.byPeriod[period] = questionData.map(item => ({
-        attribute: item.Attributes,
-        audiencePercentage: item['Audience %'],
-        responses: item.Responses
-      }));
-    });
-    
-    // Create trend data for each attribute
-    const allAttributes = new Set();
-    Object.values(result.byPeriod).forEach(periodData => {
-      periodData.forEach(item => allAttributes.add(item.attribute));
-    });
-    
-    [...allAttributes].forEach(attribute => {
-      const trendItem = { attribute };
-      
-      Object.keys(result.byPeriod).forEach(period => {
-        const match = result.byPeriod[period].find(item => item.attribute === attribute);
-        trendItem[period] = match ? match.audiencePercentage : 0;
-      });
-      
-      result.trend.push(trendItem);
-    });
-    
-    return result;
-  }
-
+  const [activeSection, setActiveSection] = useState('dataOverview');
+  
   // Helper function for rendering section content
   const renderSection = () => {
-    if (loading) {
-      return (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-xl text-gray-600">Loading survey data...</div>
-        </div>
-      );
-    }
-    
-    if (error) {
-      return (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-xl text-red-600">{error}</div>
-        </div>
-      );
-    }
-
     switch(activeSection) {
+      case 'dataOverview':
+        return <DataOverviewTab />;
       case 'summary':
-        return <ExecutiveSummary data={surveyData} />;
+        return <ExecutiveSummaryTab />;
       case 'perceptions':
-        return <PerceptionsSection data={surveyData} />;
+        return <PerceptionQatarTab />;
       case 'motivations':
-        return <MotivationsSection data={surveyData} />;
+        return <TravelMotivationsBarriersTab />;
       case 'behaviors':
-        return <BehaviorsSection data={surveyData} />;
+        return <TravelBehaviorsTab />;
       case 'competitive':
-        return <CompetitiveLandscapeSection data={surveyData} />;
+        return <CompetitiveLandscapeTab />;
       default:
-        return <ExecutiveSummary data={surveyData} />;
+        return <DataOverviewTab />;
     }
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header style={{
+    <div className="min-h-screen w-full overflow-x-hidden">
+      {/* Header - Full width y fixed */}
+      <header className="fixed top-0 left-0 right-0 w-full z-50" style={{
         backgroundColor: '#8D1B3D',
         padding: '12px 0',
         color: 'white',
+        minHeight: '64px',
+        boxSizing: 'border-box'
       }}>
-        <div style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '0 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px'
-        }}>
+        <div className="w-full px-4 flex items-center justify-center gap-3">
           <img 
             src="/assets/logo_Qatar.svg" 
             alt="Qatar Logo" 
             style={{
               height: '40px',
-              width: 'auto'
+              width: 'auto',
+              flexShrink: 0
             }}
           />
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '2px'
-          }}>
-            <h1 style={{
-              fontSize: '20px',
-              fontWeight: '500',
-              margin: 0,
-              lineHeight: '1.2'
-            }}>
-              Qatar Premium Travel Perception Dashboard
-            </h1>
-            <p style={{
-              fontSize: '12px',
-              margin: 0,
-              opacity: '0.9'
-            }}>
-              Bi-annual Premium Traveler Survey Analysis (2023-2024)
-            </p>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold m-0">Qatar Premium Travel Perception Dashboard</h1>
+            <p className="text-sm m-0">Bi-annual Premium Traveler Survey Analysis (2023-2024)</p>
           </div>
         </div>
       </header>
-
-      {/* Navigation */}
-      <nav style={{
-        backgroundColor: '#FFFFFF',
-        borderBottom: '1px solid #E5E7EB',
-        padding: '0',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-      }}>
-        <div style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '0 24px',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '4px'
-        }}>
-          <button 
-            onClick={() => setActiveSection('summary')}
-            style={{ 
-              backgroundColor: activeSection === 'summary' ? '#8D1B3D' : '#F3F4F6',
-              color: activeSection === 'summary' ? 'white' : '#4B5563',
-              padding: '12px 20px',
-              border: 'none',
-              borderRadius: '4px 4px 0 0',
-              fontWeight: 500,
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              margin: '4px 4px 0'
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" style={{height: '16px', width: '16px'}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Executive Summary
-          </button>
-          <button 
-            onClick={() => setActiveSection('perceptions')}
-            style={{ 
-              backgroundColor: activeSection === 'perceptions' ? '#8D1B3D' : '#F3F4F6',
-              color: activeSection === 'perceptions' ? 'white' : '#4B5563',
-              padding: '12px 20px',
-              border: 'none',
-              borderRadius: '4px 4px 0 0',
-              fontWeight: 500,
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              margin: '4px 4px 0'
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" style={{height: '16px', width: '16px'}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            Perceptions of Qatar
-          </button>
-          <button 
-            onClick={() => setActiveSection('motivations')}
-            style={{ 
-              backgroundColor: activeSection === 'motivations' ? '#8D1B3D' : '#F3F4F6',
-              color: activeSection === 'motivations' ? 'white' : '#4B5563',
-              padding: '12px 20px',
-              border: 'none',
-              borderRadius: '4px 4px 0 0',
-              fontWeight: 500,
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              margin: '4px 4px 0'
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" style={{height: '16px', width: '16px'}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Travel Motivations & Barriers
-          </button>
-          <button 
-            onClick={() => setActiveSection('behaviors')}
-            style={{ 
-              backgroundColor: activeSection === 'behaviors' ? '#8D1B3D' : '#F3F4F6',
-              color: activeSection === 'behaviors' ? 'white' : '#4B5563',
-              padding: '12px 20px',
-              border: 'none',
-              borderRadius: '4px 4px 0 0',
-              fontWeight: 500,
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              margin: '4px 4px 0'
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" style={{height: '16px', width: '16px'}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Travel Behaviors & Trends
-          </button>
-          <button 
-            onClick={() => setActiveSection('competitive')}
-            style={{ 
-              backgroundColor: activeSection === 'competitive' ? '#8D1B3D' : '#F3F4F6',
-              color: activeSection === 'competitive' ? 'white' : '#4B5563',
-              padding: '12px 20px',
-              border: 'none',
-              borderRadius: '4px 4px 0 0',
-              fontWeight: 500,
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              margin: '4px 4px 0'
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" style={{height: '16px', width: '16px'}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-            </svg>
-            Competitive Landscape
-          </button>
+      
+      {/* Filtro de país como componente separado */}
+      <CountryFilter />
+      
+      {/* Navigation - Full width y fixed */}
+      <nav className="fixed top-[114px] left-0 right-0 w-full bg-white py-4 shadow z-40" style={{ minHeight: '56px', boxSizing: 'border-box' }}>
+        <div className="w-full px-6">
+          <div className="flex justify-center space-x-3 overflow-x-auto pb-2">
+            <NavButton 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>}
+              label="Data Overview" 
+              active={activeSection === 'dataOverview'} 
+              onClick={() => setActiveSection('dataOverview')} 
+            />
+            <NavButton 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>}
+              label="Executive Summary" 
+              active={activeSection === 'summary'} 
+              onClick={() => setActiveSection('summary')} 
+            />
+            <NavButton 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>}
+              label="Perceptions of Qatar" 
+              active={activeSection === 'perceptions'} 
+              onClick={() => setActiveSection('perceptions')} 
+            />
+            <NavButton 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>}
+              label="Travel Motivations & Barriers" 
+              active={activeSection === 'motivations'} 
+              onClick={() => setActiveSection('motivations')} 
+            />
+            <NavButton 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="12" y1="16" x2="12.01" y2="16"></line><line x1="8" y1="16" x2="8.01" y2="16"></line><line x1="16" y1="16" x2="16.01" y2="16"></line></svg>}
+              label="Travel Behaviors & Trends" 
+              active={activeSection === 'behaviors'} 
+              onClick={() => setActiveSection('behaviors')} 
+            />
+            <NavButton 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>}
+              label="Competitive Landscape" 
+              active={activeSection === 'competitive'} 
+              onClick={() => setActiveSection('competitive')} 
+            />
+          </div>
         </div>
       </nav>
-
-      {/* Main Content */}
-      <main style={{ 
-        maxWidth: '1440px',
-        margin: '0 auto',
-        padding: '24px'
-      }}>
+      
+      {/* Main Content - Con espacio para header y nav */}
+      <div className="pt-[190px] max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {renderSection()}
-      </main>
+      </div>
     </div>
   );
 };
+
+// Navigation Button Component
+function NavButton({ icon, label, active, onClick }) {
+  return (
+    <button
+      className={`px-4 py-2 rounded-md font-medium whitespace-nowrap flex items-center gap-2
+        ${active ? 'bg-[#8D1B3D] text-white' : 'bg-white text-gray-700 border border-gray-200'}
+      `}
+      onClick={onClick}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
 
 export default QatarDashboard; 

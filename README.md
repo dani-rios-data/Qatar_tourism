@@ -1,6 +1,27 @@
 # Qatar Tourism Dashboard
 
-A React-based dashboard showing insights and analytics about tourism in Qatar, focusing on motivations, barriers, and opportunities for the premium travel market.
+Un dashboard simple para visualizar datos de turismo de Qatar.
+
+## Estructura del Proyecto
+
+- `public/assets`: Contiene los activos estáticos como el logo de Qatar
+- `src/components`: Componentes de React simplificados
+- `src/index.css`: Estilos basados en Tailwind CSS
+
+## Inicio Rápido
+
+```bash
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo
+npm start
+```
+
+## Tecnologías Utilizadas
+
+- React
+- Tailwind CSS
 
 ## Features
 
@@ -93,12 +114,6 @@ git push origin main
    - Click "Deploy"
 
 3. Your project will be automatically deployed on every push to the main branch.
-
-## Technology Stack
-
-- React.js
-- Recharts for data visualization
-- Tailwind CSS for styling
 
 ## License
 
