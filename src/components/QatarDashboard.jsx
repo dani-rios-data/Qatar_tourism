@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import DataOverviewTab from './tabs/data_overview/DataOverviewTab';
-import ExecutiveSummaryTab from './tabs/executive_summary/ExecutiveSummaryTab';
-import PerceptionQatarTab from './tabs/perception_qatar/PerceptionQatarTab';
-import TravelMotivationsBarriersTab from './tabs/motivations_barriers/TravelMotivationsBarriersTab';
-import TravelBehaviorsTab from './tabs/travel_behaviors/TravelBehaviorsTab';
-import CompetitiveLandscapeTab from './tabs/competitive_landscape/CompetitiveLandscapeTab';
+import TravelAttitudesTab from './tabs/travel_attitudes/TravelAttitudesTab';
+import AccommodationTab from './tabs/accommodation/AccommodationTab';
+import TransportationTab from './tabs/transportation/TransportationTab';
+import CompetitiveLandscapeTab from './tabs/destinations/CompetitiveLandscapeTab';
 
 // Componente separado para el filtro de país
 const CountryFilter = () => {
@@ -94,25 +93,23 @@ const CountryFilter = () => {
 };
 
 const QatarDashboard = () => {
-  const [activeSection, setActiveSection] = useState('dataOverview');
+  const [activeSection, setActiveSection] = useState('motivations');
   
   // Helper function for rendering section content
   const renderSection = () => {
     switch(activeSection) {
+      case 'transportation':
+        return <TransportationTab />;
+      case 'motivations':
+        return <TravelAttitudesTab />;
+      case 'accommodation':
+        return <AccommodationTab />;
+      case 'destinations':
+        return <CompetitiveLandscapeTab />;
       case 'dataOverview':
         return <DataOverviewTab />;
-      case 'summary':
-        return <ExecutiveSummaryTab />;
-      case 'perceptions':
-        return <PerceptionQatarTab />;
-      case 'motivations':
-        return <TravelMotivationsBarriersTab />;
-      case 'behaviors':
-        return <TravelBehaviorsTab />;
-      case 'competitive':
-        return <CompetitiveLandscapeTab />;
       default:
-        return <DataOverviewTab />;
+        return <TravelAttitudesTab />;
     }
   };
 
@@ -151,40 +148,34 @@ const QatarDashboard = () => {
         <div className="w-full px-6">
           <div className="flex justify-center space-x-3 overflow-x-auto pb-2">
             <NavButton 
-              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>}
-              label="Data Overview" 
-              active={activeSection === 'dataOverview'} 
-              onClick={() => setActiveSection('dataOverview')} 
-            />
-            <NavButton 
-              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>}
-              label="Executive Summary" 
-              active={activeSection === 'summary'} 
-              onClick={() => setActiveSection('summary')} 
-            />
-            <NavButton 
-              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>}
-              label="Perceptions of Qatar" 
-              active={activeSection === 'perceptions'} 
-              onClick={() => setActiveSection('perceptions')} 
-            />
-            <NavButton 
               icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>}
-              label="Travel Motivations & Barriers" 
+              label="Travel Attitudes" 
               active={activeSection === 'motivations'} 
               onClick={() => setActiveSection('motivations')} 
             />
             <NavButton 
-              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="12" y1="16" x2="12.01" y2="16"></line><line x1="8" y1="16" x2="8.01" y2="16"></line><line x1="16" y1="16" x2="16.01" y2="16"></line></svg>}
-              label="Travel Behaviors & Trends" 
-              active={activeSection === 'behaviors'} 
-              onClick={() => setActiveSection('behaviors')} 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>}
+              label="Destinations" 
+              active={activeSection === 'destinations'} 
+              onClick={() => setActiveSection('destinations')} 
             />
             <NavButton 
-              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>}
-              label="Competitive Landscape" 
-              active={activeSection === 'competitive'} 
-              onClick={() => setActiveSection('competitive')} 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>}
+              label="Accommodation" 
+              active={activeSection === 'accommodation'} 
+              onClick={() => setActiveSection('accommodation')} 
+            />
+            <NavButton 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg>}
+              label="Transportation" 
+              active={activeSection === 'transportation'} 
+              onClick={() => setActiveSection('transportation')} 
+            />
+            <NavButton 
+              icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>}
+              label="Data Overview" 
+              active={activeSection === 'dataOverview'} 
+              onClick={() => setActiveSection('dataOverview')} 
             />
           </div>
         </div>
